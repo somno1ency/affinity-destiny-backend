@@ -1,0 +1,126 @@
+syntax = "v1"
+
+info (
+	title:   "AffinityDestiny(HTTP)"
+	desc:    "AffinityDestiny http接口描述定义"
+	author:  "Mackay Zhou"
+	date:    "2024.08.16"
+	version: "v1"
+)
+
+import "base.api"
+
+type (
+	UserLoginReq {
+		Mobile   string `json:"mobile"`
+		Password string `json:"password"`
+	}
+	UserRegisterReq {
+		Mobile   string `json:"mobile"`
+		Password string `json:"password"`
+		Nickname string `json:"nickname"`
+		Avatar   string `json:"avatar"`
+		Sex      uint8  `json:"sex"`
+	}
+)
+
+@server (
+	prefix:  /v1/users
+	group:   user
+	timeout: 10s
+)
+service user-api {
+	@handler UserLogin
+	post /login (UserLoginReq) returns (UserResp)
+
+	@handler UserRegister
+	post /register (UserRegisterReq) returns (UserResp)
+
+	@handler UserFind
+	get /:id (PathIdReq) returns (UserResp)
+}
+
+type (
+	GroupCreateReq {
+		Name     string `json:"name"`
+		OwnerId  int64  `json:"ownerId"`
+		Icon     string `json:"icon"`
+		Category uint8  `json:"category"`
+		Memo     string `json:"memo"`
+	}
+	GroupJoinReq {
+		UserId  int64  `json:"userId"`
+		GroupId string `json:"groupId"`
+	}
+	GroupResp {
+		Id        int64  `json:"id"`
+		GroupId   string `json:"groupId"`
+		Name      string `json:"name"`
+		OwnerId   int64  `json:"ownerId"`
+		Icon      string `json:"icon"`
+		Category  uint8  `json:"category"`
+		Memo      string `json:"memo"`
+		CreatedAt string `json:"createdAt"`
+		UpdatedAt string `json:"updatedAt"`
+	}
+)
+
+@server (
+	prefix:  /v1/groups
+	group:   group
+	timeout: 10s
+)
+service user-api {
+	@handler GroupCreate
+	post /create (GroupCreateReq)
+
+	@handler GroupJoin
+	post /join (GroupJoinReq)
+
+	@handler GroupLoad
+	get /load/:id (PathIdReq) returns ([]GroupResp)
+}
+
+type (
+	ContactAddReq {
+		OwnerId int64  `json:"ownerId"`
+		Mobile  string `json:"mobile"`
+	}
+)
+
+@server (
+	prefix:  /v1/contacts
+	group:   contact
+	timeout: 10s
+)
+service user-api {
+	@handler ContactAdd
+	post /add (ContactAddReq)
+
+	@handler ContactLoad
+	get /load/:id (PathIdReq) returns ([]UserResp)
+}
+
+type (
+	// 之后也要考虑资源是谁传的
+	UploadReq {
+		File string `form:"file"`
+	}
+	UploadResp {
+		Url string `json:"url"`
+	}
+)
+
+@server (
+	prefix:  /v1
+	group:   reactive
+	timeout: 10s
+)
+service user-api {
+	@handler Chat
+	post /chat
+
+	@handler Upload
+	get /upload (UploadReq) returns (UploadResp)
+}
+

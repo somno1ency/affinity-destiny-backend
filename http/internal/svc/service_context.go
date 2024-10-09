@@ -4,10 +4,10 @@ import (
 	"ad.com/http/internal/config"
 	"ad.com/pkg/repo/category"
 	"ad.com/pkg/repo/group"
-	group_contact "ad.com/pkg/repo/group-contact"
+	"ad.com/pkg/repo/group_contact"
 	"ad.com/pkg/repo/resource"
 	"ad.com/pkg/repo/user"
-	user_contact "ad.com/pkg/repo/user-contact"
+	"ad.com/pkg/repo/user_contact"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 )
 

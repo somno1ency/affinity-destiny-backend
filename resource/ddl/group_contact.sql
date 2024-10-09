@@ -2,6 +2,7 @@ CREATE TABLE `group_contact` (
   `id` BIGINT NOT NULL AUTO_INCREMENT,
   `group_id` BIGINT DEFAULT NULL COMMENT '群ID',
   `user_id` BIGINT DEFAULT NULL COMMENT '用户ID',
+  `category_id` BIGINT NOT NULL DEFAULT 0 COMMENT "用户自定义分组ID",
   `userNickname` VARCHAR(20) NOT NULL DEFAULT '' COMMENT '群昵称',
   `remark` VARCHAR(120) NOT NULL DEFAULT '' COMMENT '群备注',
   `background` VARCHAR(120) NOT NULL DEFAULT '' COMMENT '背景',

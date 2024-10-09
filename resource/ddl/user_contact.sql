@@ -2,6 +2,7 @@ CREATE TABLE `user_contact` (
   `id` BIGINT NOT NULL AUTO_INCREMENT,
   `owner_id` BIGINT NOT NULL DEFAULT 0 COMMENT '所有者用户ID',
   `dst_id` BIGINT NOT NULL DEFAULT 0 COMMENT '目标用户ID',
+  `category_id` BIGINT NOT NULL DEFAULT 0 COMMENT "用户自定义分组ID",
   `background` VARCHAR(120) NOT NULL DEFAULT '' COMMENT '背景',
   `is_disturb` BOOLEAN NOT NULL DEFAULT false COMMENT '是否免打扰',
   `is_top` BOOLEAN NOT NULL DEFAULT false COMMENT '是否置顶',

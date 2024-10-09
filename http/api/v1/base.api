@@ -2,24 +2,11 @@ syntax = "v1"
 
 info (
 	title:   "AffinityDestiny(HTTP)"
-	desc:    "AffinityDestiny http接口公共定义"
+	desc:    "AffinityDestiny http api common definitions"
 	author:  "Mackay Zhou"
 	date:    "2024.08.16"
 	version: "v1"
 )
-
-type UserResp {
-	Id          int64  `json:"id"`
-	Mobile      string `json:"mobile"`
-	Avatar      string `json:"avatar"`
-	Sex         uint8  `json:"sex"`
-	Nickname    string `json:"nickname"`
-	Token       string `json:"token"`
-	Memo        string `json:"memo"`
-	CreatedAt   string `json:"createdAt"`
-	UpdatedAt   string `json:"updatedAt"`
-	LastLoginAt string `json:"lastLoginAt"`
-}
 
 type FormIdReq {
 	Id int64 `form:"id"`

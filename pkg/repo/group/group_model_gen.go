@@ -24,8 +24,7 @@ type (
 	groupModel interface {
 		Insert(ctx context.Context, data *Group) (sql.Result, error)
 		FindOne(ctx context.Context, id int64) (*Group, error)
-		FindOneByGroupId(ctx context.Context, groupId sql.NullString) (*Group, error)
-		FindOneByName(ctx context.Context, name sql.NullString) (*Group, error)
+		FindOneByName(ctx context.Context, name string) (*Group, error)
 		Update(ctx context.Context, data *Group) error
 		Delete(ctx context.Context, id int64) error
 	}
@@ -36,15 +35,14 @@ type (
 	}
 
 	Group struct {
-		Id        int64          `db:"id"`
-		GroupId   sql.NullString `db:"group_id"`   // 群标识
-		Name      sql.NullString `db:"name"`       // 群名称
-		OwnerId   sql.NullInt64  `db:"owner_id"`   // 群创建者ID
-		Icon      sql.NullString `db:"icon"`       // 群头像
-		Category  sql.NullInt64  `db:"category"`   // 群类型
-		Memo      sql.NullString `db:"memo"`       // 群备注
-		CreatedAt sql.NullTime   `db:"created_at"` // 创建时间
-		UpdatedAt sql.NullTime   `db:"updated_at"` // 更新时间
+		Id        int64        `db:"id"`
+		CustomId  string       `db:"custom_id"`  // 群标识
+		Name      string       `db:"name"`       // 群名称
+		OwnerId   int64        `db:"owner_id"`   // 群创建者ID
+		Avatar    string       `db:"avatar"`     // 群头像
+		Memo      string       `db:"memo"`       // 群备注
+		CreatedAt sql.NullTime `db:"created_at"` // 创建时间
+		UpdatedAt sql.NullTime `db:"updated_at"` // 更新时间
 	}
 )
 
@@ -75,21 +73,7 @@ func (m *defaultGroupModel) FindOne(ctx context.Context, id int64) (*Group, erro
 	}
 }
 
-func (m *defaultGroupModel) FindOneByGroupId(ctx context.Context, groupId sql.NullString) (*Group, error) {
-	var resp Group
-	query := fmt.Sprintf("select %s from %s where `group_id` = ? limit 1", groupRows, m.table)
-	err := m.conn.QueryRowCtx(ctx, &resp, query, groupId)
-	switch err {
-	case nil:
-		return &resp, nil
-	case sqlx.ErrNotFound:
-		return nil, ErrNotFound
-	default:
-		return nil, err
-	}
-}
-
-func (m *defaultGroupModel) FindOneByName(ctx context.Context, name sql.NullString) (*Group, error) {
+func (m *defaultGroupModel) FindOneByName(ctx context.Context, name string) (*Group, error) {
 	var resp Group
 	query := fmt.Sprintf("select %s from %s where `name` = ? limit 1", groupRows, m.table)
 	err := m.conn.QueryRowCtx(ctx, &resp, query, name)
@@ -104,14 +88,14 @@ func (m *defaultGroupModel) FindOneByName(ctx context.Context, name sql.NullStri
 }
 
 func (m *defaultGroupModel) Insert(ctx context.Context, data *Group) (sql.Result, error) {
-	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?)", m.table, groupRowsExpectAutoSet)
-	ret, err := m.conn.ExecCtx(ctx, query, data.GroupId, data.Name, data.OwnerId, data.Icon, data.Category, data.Memo)
+	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?)", m.table, groupRowsExpectAutoSet)
+	ret, err := m.conn.ExecCtx(ctx, query, data.CustomId, data.Name, data.OwnerId, data.Avatar, data.Memo)
 	return ret, err
 }
 
 func (m *defaultGroupModel) Update(ctx context.Context, newData *Group) error {
 	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, groupRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, newData.GroupId, newData.Name, newData.OwnerId, newData.Icon, newData.Category, newData.Memo, newData.Id)
+	_, err := m.conn.ExecCtx(ctx, query, newData.CustomId, newData.Name, newData.OwnerId, newData.Avatar, newData.Memo, newData.Id)
 	return err
 }
 

@@ -34,10 +34,16 @@ type (
 	}
 
 	UserContact struct {
-		Id        int64         `db:"id"`
-		OwnerId   sql.NullInt64 `db:"owner_id"`   // 所有者用户ID
-		DstId     sql.NullInt64 `db:"dst_id"`     // 目标用户ID
-		CreatedAt sql.NullTime  `db:"created_at"` // 创建时间
+		Id         int64        `db:"id"`
+		OwnerId    int64        `db:"owner_id"`    // 所有者用户ID
+		DstId      int64        `db:"dst_id"`      // 目标用户ID
+		CategoryId int64        `db:"category_id"` // 用户自定义分组ID
+		Background string       `db:"background"`  // 背景
+		IsDisturb  bool         `db:"is_disturb"`  // 是否免打扰
+		IsTop      bool         `db:"is_top"`      // 是否置顶
+		IsRemind   bool         `db:"isRemind"`    // 是否提醒
+		CreatedAt  sql.NullTime `db:"created_at"`  // 创建时间
+		UpdatedAt  sql.NullTime `db:"updated_at"`  // 更新时间
 	}
 )
 
@@ -69,14 +75,14 @@ func (m *defaultUserContactModel) FindOne(ctx context.Context, id int64) (*UserC
 }
 
 func (m *defaultUserContactModel) Insert(ctx context.Context, data *UserContact) (sql.Result, error) {
-	query := fmt.Sprintf("insert into %s (%s) values (?, ?)", m.table, userContactRowsExpectAutoSet)
-	ret, err := m.conn.ExecCtx(ctx, query, data.OwnerId, data.DstId)
+	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?)", m.table, userContactRowsExpectAutoSet)
+	ret, err := m.conn.ExecCtx(ctx, query, data.OwnerId, data.DstId, data.CategoryId, data.Background, data.IsDisturb, data.IsTop, data.IsRemind)
 	return ret, err
 }
 
 func (m *defaultUserContactModel) Update(ctx context.Context, data *UserContact) error {
 	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, userContactRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, data.OwnerId, data.DstId, data.Id)
+	_, err := m.conn.ExecCtx(ctx, query, data.OwnerId, data.DstId, data.CategoryId, data.Background, data.IsDisturb, data.IsTop, data.IsRemind, data.Id)
 	return err
 }
 

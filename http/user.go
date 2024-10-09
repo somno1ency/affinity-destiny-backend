@@ -26,7 +26,8 @@ func main() {
 	ctx := svc.NewServiceContext(c)
 	handler.RegisterHandlers(server, ctx)
 
-	// 全局错误处理(在hander中使用了xhttp扩展实现了类似效果,并且正常数据也一并带了code&msg,不使用xhttp只在这里做错误处理,那么正常数据是没有code&msg这层包装的,只有错误有)
+	// global error handler(using xhttp extension, and normal data is also wrapped with code&msg, if not using xhttp
+	// only here to do error handling, then normal data has no code&msg layer of wrapping)
 	// httpx.SetErrorHandler(func(err error) (int, any) {
 	// 	switch e := err.(type) {
 	// 	case *errors.CodeMsg:

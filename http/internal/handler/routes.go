@@ -5,10 +5,14 @@ import (
 	"net/http"
 	"time"
 
-	contact "ad.com/http/internal/handler/contact"
+	admin_resource "ad.com/http/internal/handler/admin_resource"
+	category "ad.com/http/internal/handler/category"
 	group "ad.com/http/internal/handler/group"
+	group_contact "ad.com/http/internal/handler/group_contact"
 	reactive "ad.com/http/internal/handler/reactive"
+	resource "ad.com/http/internal/handler/resource"
 	user "ad.com/http/internal/handler/user"
+	user_contact "ad.com/http/internal/handler/user_contact"
 	"ad.com/http/internal/svc"
 
 	"github.com/zeromicro/go-zero/rest"
@@ -19,38 +23,152 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 		[]rest.Route{
 			{
 				Method:  http.MethodPost,
-				Path:    "/add",
-				Handler: contact.ContactAddHandler(serverCtx),
+				Path:    "/",
+				Handler: admin_resource.ResourceCreateHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPut,
+				Path:    "/:id",
+				Handler: admin_resource.ResourceUpdateHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodDelete,
+				Path:    "/:id",
+				Handler: admin_resource.ResourceDeleteHandler(serverCtx),
 			},
 			{
 				Method:  http.MethodGet,
-				Path:    "/load/:id",
-				Handler: contact.ContactLoadHandler(serverCtx),
+				Path:    "/:type",
+				Handler: admin_resource.ResourceListHandler(serverCtx),
 			},
 		},
-		rest.WithPrefix("/v1/contacts"),
+		rest.WithPrefix("/v1/admin/resources"),
 		rest.WithTimeout(10000*time.Millisecond),
 	)
 
 	server.AddRoutes(
 		[]rest.Route{
 			{
+				Method:  http.MethodGet,
+				Path:    "/",
+				Handler: category.CategoryListHandler(serverCtx),
+			},
+			{
 				Method:  http.MethodPost,
-				Path:    "/create",
+				Path:    "/",
+				Handler: category.CategoryCreateHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPut,
+				Path:    "/:id",
+				Handler: category.CategoryUpdateHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodDelete,
+				Path:    "/:id",
+				Handler: category.CategoryDeleteHandler(serverCtx),
+			},
+		},
+		rest.WithPrefix("/v1/categories"),
+		rest.WithTimeout(10000*time.Millisecond),
+	)
+
+	server.AddRoutes(
+		[]rest.Route{
+			{
+				Method:  http.MethodGet,
+				Path:    "/",
+				Handler: group.GroupListHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/",
 				Handler: group.GroupCreateHandler(serverCtx),
 			},
 			{
-				Method:  http.MethodPost,
-				Path:    "/join",
-				Handler: group.GroupJoinHandler(serverCtx),
+				Method:  http.MethodPut,
+				Path:    "/:id",
+				Handler: group.GroupUpdateHandler(serverCtx),
 			},
 			{
-				Method:  http.MethodGet,
-				Path:    "/load/:id",
-				Handler: group.GroupLoadHandler(serverCtx),
+				Method:  http.MethodDelete,
+				Path:    "/:id",
+				Handler: group.GroupDeleteHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/:id/disband",
+				Handler: group.GroupDisbandHandler(serverCtx),
 			},
 		},
 		rest.WithPrefix("/v1/groups"),
+		rest.WithTimeout(10000*time.Millisecond),
+	)
+
+	server.AddRoutes(
+		[]rest.Route{
+			{
+				Method:  http.MethodGet,
+				Path:    "/:groupId",
+				Handler: group_contact.GroupContactListHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/:groupId",
+				Handler: group_contact.GroupContactAddHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/:groupId/join",
+				Handler: group_contact.GroupContactJoinHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/:groupId/leave",
+				Handler: group_contact.GroupContactLeaveHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodDelete,
+				Path:    "/:id",
+				Handler: group_contact.GroupContactDeleteHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/:id/background",
+				Handler: group_contact.GroupContactBackgroundSetHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/:id/category",
+				Handler: group_contact.GroupContactCategorySetHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/:id/is-disturb",
+				Handler: group_contact.GroupContactIsDisturbSetHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/:id/is-show-nickname",
+				Handler: group_contact.GroupContactIsShowNicknameSetHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/:id/is-top",
+				Handler: group_contact.GroupContactIsTopSetHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/:id/nickname",
+				Handler: group_contact.GroupContactNicknameSetHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/:id/remark",
+				Handler: group_contact.GroupContactRemarkSetHandler(serverCtx),
+			},
+		},
+		rest.WithPrefix("/v1/group-contacts"),
 		rest.WithTimeout(10000*time.Millisecond),
 	)
 
@@ -75,8 +193,30 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 		[]rest.Route{
 			{
 				Method:  http.MethodGet,
+				Path:    "/:type",
+				Handler: resource.ResourceListHandler(serverCtx),
+			},
+		},
+		rest.WithPrefix("/v1/resources"),
+		rest.WithTimeout(10000*time.Millisecond),
+	)
+
+	server.AddRoutes(
+		[]rest.Route{
+			{
+				Method:  http.MethodGet,
 				Path:    "/:id",
 				Handler: user.UserFindHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPut,
+				Path:    "/:id",
+				Handler: user.UserUpdateHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/:id/password",
+				Handler: user.PasswordSetHandler(serverCtx),
 			},
 			{
 				Method:  http.MethodPost,
@@ -85,11 +225,63 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			},
 			{
 				Method:  http.MethodPost,
-				Path:    "/register",
-				Handler: user.UserRegisterHandler(serverCtx),
+				Path:    "/send-code",
+				Handler: user.CodeSendHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/validate-code",
+				Handler: user.CodeValidateHandler(serverCtx),
 			},
 		},
 		rest.WithPrefix("/v1/users"),
+		rest.WithTimeout(10000*time.Millisecond),
+	)
+
+	server.AddRoutes(
+		[]rest.Route{
+			{
+				Method:  http.MethodGet,
+				Path:    "/",
+				Handler: user_contact.UserContactListHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/:id",
+				Handler: user_contact.UserContactAddHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodDelete,
+				Path:    "/:id",
+				Handler: user_contact.UserContactDeleteHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/:id/background",
+				Handler: user_contact.UserContactBackgroundSetHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/:id/category",
+				Handler: user_contact.UserContactCategorySetHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/:id/is-disturb",
+				Handler: user_contact.UserContactIsDisturbSetHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/:id/is-remind",
+				Handler: user_contact.UserContactIsRemindSetHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/:id/is-top",
+				Handler: user_contact.UserContactIsTopSetHandler(serverCtx),
+			},
+		},
+		rest.WithPrefix("/v1/user-contacts"),
 		rest.WithTimeout(10000*time.Millisecond),
 	)
 }

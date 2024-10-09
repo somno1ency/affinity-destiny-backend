@@ -2,7 +2,7 @@ syntax = "v1"
 
 info (
 	title:   "AffinityDestiny(HTTP)"
-	desc:    "AffinityDestiny http接口描述定义"
+	desc:    "AffinityDestiny http api definitions"
 	author:  "Mackay Zhou"
 	date:    "2024.08.16"
 	version: "v1"
@@ -10,17 +10,42 @@ info (
 
 import "base.api"
 
+// ==========1.User==========
 type (
+	CodeSendReq {
+		Mobile string `json:"mobile"`
+	}
+	CodeValidateReq {
+		Mobile string `json:"mobile"`
+		Code   string `json:"code"`
+	}
 	UserLoginReq {
 		Mobile   string `json:"mobile"`
 		Password string `json:"password"`
 	}
-	UserRegisterReq {
-		Mobile   string `json:"mobile"`
+	UserPasswordReq {
+		PathIdReq
 		Password string `json:"password"`
+	}
+	UserUpdateReq {
+		PathIdReq
+		CustomId string `json:"customId"`
 		Nickname string `json:"nickname"`
 		Avatar   string `json:"avatar"`
 		Sex      uint8  `json:"sex"`
+		Memo     string `json:"memo"`
+	}
+	UserResp {
+		PathIdReq
+		CustomId    string `json:"customId"`
+		Mobile      string `json:"mobile"`
+		Nickname    string `json:"nickname"`
+		Avatar      string `json:"avatar"`
+		Sex         uint8  `json:"sex"`
+		Memo        string `json:"memo"`
+		CreatedAt   string `json:"createdAt"`
+		UpdatedAt   string `json:"updatedAt"`
+		LastLoginAt string `json:"lastLoginAt"`
 	}
 )
 
@@ -30,35 +55,145 @@ type (
 	timeout: 10s
 )
 service user-api {
+	@handler CodeSend
+	post /send-code (CodeSendReq)
+
+	@handler CodeValidate
+	post /validate-code (CodeValidateReq) returns (UserResp)
+
 	@handler UserLogin
 	post /login (UserLoginReq) returns (UserResp)
 
-	@handler UserRegister
-	post /register (UserRegisterReq) returns (UserResp)
-
 	@handler UserFind
-	get /:id (PathIdReq) returns (UserResp)
+	get /:id (PathIdStrReq) returns (UserResp)
+
+	@handler UserUpdate
+	put /:id (UserUpdateReq)
+
+	// set password & reset password
+	@handler PasswordSet
+	post /:id/password (UserPasswordReq)
 }
 
+// ==========2.Category==========
+type (
+	CategoryCreateReq {
+		NameZh string `json:"nameZh"`
+		NameEn string `json:"nameEn"`
+		Star   uint8  `json:"star"`
+	}
+	CategoryUpdateReq {
+		PathIdReq
+		CategoryCreateReq
+	}
+	CategoryResp {
+		Id        int64  `json:"id"`
+		OwnerId   int64  `json:"ownerId"`
+		NameZh    string `json:"nameZh"`
+		NameEn    string `json:"nameEn"`
+		Star      uint8  `json:"star"`
+		CreatedAt string `json:"createdAt"`
+		UpdatedAt string `json:"updatedAt"`
+	}
+)
+
+@server (
+	prefix:  /v1/categories
+	group:   category
+	timeout: 10s
+)
+service user-api {
+	@handler CategoryList
+	get / returns ([]CategoryResp)
+
+	@handler CategoryCreate
+	post / (CategoryCreateReq)
+
+	@handler CategoryUpdate
+	put /:id (CategoryUpdateReq)
+
+	@handler CategoryDelete
+	delete /:id (PathIdReq)
+}
+
+// ==========3.User Contact==========
+type (
+	UserContactCategorySetReq {
+		PathIdReq
+		CategoryId int64 `json:"categoryId"`
+	}
+	UserContactBackgroundSetReq {
+		PathIdReq
+		Background string `json:"background"`
+	}
+	UserContactIsSet {
+		PathIdReq
+		Value bool `json:"value"`
+	}
+	UserContactResp {
+		Id         int64        `json:"id"`
+		OwnerId    int64        `json:"ownerId"`
+		DstId      int64        `json:"dstId"`
+		CategoryId int64        `json:"categoryId"`
+		Background string       `json:"background"`
+		IsDisturb  bool         `json:"isDisturb"`
+		IsTop      bool         `json:"isTop"`
+		IsRemind   bool         `json:"isRemind"`
+		CreatedAt  string       `json:"createdAt"`
+		UpdatedAt  string       `json:"updatedAt"`
+		Category   CategoryResp `json:"category"`
+		User       UserResp     `json:"user"`
+	}
+)
+
+@server (
+	prefix:  /v1/user-contacts
+	group:   user_contact
+	timeout: 10s
+)
+service user-api {
+	@handler UserContactList
+	get / returns ([]UserContactResp)
+
+	@handler UserContactAdd
+	post /:id (PathIdReq)
+
+	@handler UserContactDelete
+	delete /:id (PathIdReq)
+
+	@handler UserContactCategorySet
+	post /:id/category (UserContactCategorySetReq)
+
+	@handler UserContactBackgroundSet
+	post /:id/background (UserContactBackgroundSetReq)
+
+	@handler UserContactIsDisturbSet
+	post /:id/is-disturb (UserContactIsSet)
+
+	@handler UserContactIsTopSet
+	post /:id/is-top (UserContactIsSet)
+
+	@handler UserContactIsRemindSet
+	post /:id/is-remind (UserContactIsSet)
+}
+
+// ==========4.Group==========
 type (
 	GroupCreateReq {
-		Name     string `json:"name"`
-		OwnerId  int64  `json:"ownerId"`
-		Icon     string `json:"icon"`
-		Category uint8  `json:"category"`
-		Memo     string `json:"memo"`
+		Name   string `json:"name"`
+		Avatar string `json:"avatar"`
+		Memo   string `json:"memo"`
 	}
-	GroupJoinReq {
-		UserId  int64  `json:"userId"`
-		GroupId string `json:"groupId"`
+	GroupUpdateReq {
+		PathIdReq
+		GroupCreateReq
 	}
 	GroupResp {
 		Id        int64  `json:"id"`
-		GroupId   string `json:"groupId"`
+		CustomId  string `json:"customId"`
 		Name      string `json:"name"`
 		OwnerId   int64  `json:"ownerId"`
-		Icon      string `json:"icon"`
-		Category  uint8  `json:"category"`
+		Avatar    string `json:"avatar"`
 		Memo      string `json:"memo"`
 		CreatedAt string `json:"createdAt"`
 		UpdatedAt string `json:"updatedAt"`
@@ -71,38 +206,166 @@ type (
 	timeout: 10s
 )
 service user-api {
+	@handler GroupList
+	get / returns ([]GroupResp)
+
 	@handler GroupCreate
-	post /create (GroupCreateReq)
+	post / (GroupCreateReq)
 
-	@handler GroupJoin
-	post /join (GroupJoinReq)
+	@handler GroupUpdate
+	put /:id (GroupUpdateReq)
 
-	@handler GroupLoad
-	get /load/:id (PathIdReq) returns ([]GroupResp)
+	@handler GroupDelete
+	delete /:id (PathIdReq)
+
+	// only owner can do this
+	@handler GroupDisband
+	post /:id/disband (PathIdReq)
 }
 
+// ==========5.Group Contact==========
 type (
-	ContactAddReq {
-		OwnerId int64  `json:"ownerId"`
-		Mobile  string `json:"mobile"`
+	GroupIdReq {
+		GroupId int64 `path:"groupId"`
+	}
+	GroupContactAddReq {
+		GroupIdReq
+		UserIds []int64 `json:"userIds"`
+	}
+	GroupContactCategorySetReq {
+		PathIdReq
+		CategoryId int64 `json:"categoryId"`
+	}
+	GroupContactStringSetReq {
+		PathIdReq
+		Value string `json:"value"`
+	}
+	GroupContactIsSet {
+		PathIdReq
+		Value bool `json:"value"`
+	}
+	GroupContactResp {
+		Id             int64        `json:"id"`
+		GroupId        int64        `json:"groupId"`
+		UserId         int64        `json:"userId"`
+		CategoryId     int64        `json:"categoryId"`
+		UserNickname   string       `json:"userNickname"`
+		Remark         string       `json:"remark"`
+		Background     string       `json:"background"`
+		IsDisturb      bool         `json:"isDisturb"`
+		IsTop          bool         `json:"isTop"`
+		IsShowNickname bool         `json:"isShowNickname"`
+		CreatedAt      string       `json:"createdAt"`
+		UpdatedAt      string       `json:"updatedAt"`
+		Category       CategoryResp `json:"category"`
+		Group          GroupResp    `json:"group"`
+		User           UserResp     `json:"user"`
 	}
 )
 
 @server (
-	prefix:  /v1/contacts
-	group:   contact
+	prefix:  /v1/group-contacts
+	group:   group_contact
 	timeout: 10s
 )
 service user-api {
-	@handler ContactAdd
-	post /add (ContactAddReq)
+	@handler GroupContactList
+	get /:groupId (GroupIdReq) returns ([]GroupContactResp)
 
-	@handler ContactLoad
-	get /load/:id (PathIdReq) returns ([]UserResp)
+	// add user to group operated by group owner
+	@handler GroupContactAdd
+	post /:groupId (GroupContactAddReq)
+
+	// join target group operated by user(retrieve userId from token)
+	@handler GroupContactJoin
+	post /:groupId/join (GroupIdReq)
+
+	// leave target group operated by user(retrieve userId from token)
+	@handler GroupContactLeave
+	post /:groupId/leave (GroupIdReq)
+
+	@handler GroupContactDelete
+	delete /:id (PathIdReq)
+
+	@handler GroupContactCategorySet
+	post /:id/category (UserContactCategorySetReq)
+
+	@handler GroupContactRemarkSet
+	post /:id/remark (GroupContactStringSetReq)
+
+	@handler GroupContactNicknameSet
+	post /:id/nickname (GroupContactStringSetReq)
+
+	@handler GroupContactBackgroundSet
+	post /:id/background (GroupContactStringSetReq)
+
+	@handler GroupContactIsDisturbSet
+	post /:id/is-disturb (GroupContactIsSet)
+
+	@handler GroupContactIsTopSet
+	post /:id/is-top (GroupContactIsSet)
+
+	@handler GroupContactIsShowNicknameSet
+	post /:id/is-show-nickname (GroupContactIsSet)
 }
 
+// ==========6.Resource==========
 type (
-	// 之后也要考虑资源是谁传的
+	ResourceType {
+		Type uint8 `path:"type"`
+	}
+	ResourceCreateReq {
+		Src    string `json:"src"`
+		Type   uint8  `json:"type"`
+		NameZh string `json:"nameZh"`
+		NameEn string `json:"nameEn"`
+	}
+	ResourceUpdateReq {
+		PathIdReq
+		ResourceCreateReq
+	}
+	ResourceResp {
+		Id        int64  `json:"id"`
+		Src       string `json:"src"`
+		Type      uint8  `json:"type"`
+		NameZh    string `json:"nameZh"`
+		NameEn    string `json:"nameEn"`
+		CreatedAt string `json:"createdAt"`
+		UpdatedAt string `json:"updatedAt"`
+	}
+)
+
+@server (
+	prefix:  /v1/resources
+	group:   resource
+	timeout: 10s
+)
+service user-api {
+	@handler ResourceList
+	get /:type (ResourceType) returns ([]ResourceResp)
+}
+
+@server (
+	prefix:  /v1/admin/resources
+	group:   admin_resource
+	timeout: 10s
+)
+service user-api {
+	@handler ResourceList
+	get /:type (ResourceType) returns ([]ResourceResp)
+
+	@handler ResourceCreate
+	post / (ResourceCreateReq)
+
+	@handler ResourceUpdate
+	put /:id (ResourceUpdateReq)
+
+	@handler ResourceDelete
+	delete /:id (PathIdReq)
+}
+
+// ==========7.Reactive==========
+type (
 	UploadReq {
 		File string `form:"file"`
 	}

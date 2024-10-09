@@ -24,7 +24,7 @@ type (
 	userModel interface {
 		Insert(ctx context.Context, data *User) (sql.Result, error)
 		FindOne(ctx context.Context, id int64) (*User, error)
-		FindOneByMobile(ctx context.Context, mobile sql.NullString) (*User, error)
+		FindOneByMobile(ctx context.Context, mobile string) (*User, error)
 		Update(ctx context.Context, data *User) error
 		Delete(ctx context.Context, id int64) error
 	}
@@ -35,19 +35,18 @@ type (
 	}
 
 	User struct {
-		Id          int64          `db:"id"`
-		Mobile      sql.NullString `db:"mobile"`        // 手机
-		Password    sql.NullString `db:"password"`      // 密码
-		Avatar      sql.NullString `db:"avatar"`        // 头像
-		Sex         sql.NullInt64  `db:"sex"`           // 性别(0:未设置 1:男 2:女)
-		Nickname    sql.NullString `db:"nickname"`      // 昵称
-		Salt        sql.NullString `db:"salt"`          // 盐值
-		Online      sql.NullInt64  `db:"online"`        // 在线(0:否 1:是)
-		Token       sql.NullString `db:"token"`         // token
-		Memo        sql.NullString `db:"memo"`          // 备注
-		CreatedAt   sql.NullTime   `db:"created_at"`    // 创建时间
-		UpdatedAt   sql.NullTime   `db:"updated_at"`    // 更新时间
-		LastLoginAt sql.NullTime   `db:"last_login_at"` // 最后登录时间
+		Id          int64        `db:"id"`
+		CustomId    string       `db:"custom_id"`     // 自定义ID
+		Mobile      string       `db:"mobile"`        // 手机
+		Password    string       `db:"password"`      // 密码
+		Nickname    string       `db:"nickname"`      // 昵称
+		Avatar      string       `db:"avatar"`        // 头像
+		Sex         int64        `db:"sex"`           // 性别(0:未设置 1:男 2:女)
+		Memo        string       `db:"memo"`          // 备注
+		Salt        string       `db:"salt"`          // 盐值
+		CreatedAt   sql.NullTime `db:"created_at"`    // 创建时间
+		UpdatedAt   sql.NullTime `db:"updated_at"`    // 更新时间
+		LastLoginAt sql.NullTime `db:"last_login_at"` // 最后登录时间
 	}
 )
 
@@ -78,7 +77,7 @@ func (m *defaultUserModel) FindOne(ctx context.Context, id int64) (*User, error)
 	}
 }
 
-func (m *defaultUserModel) FindOneByMobile(ctx context.Context, mobile sql.NullString) (*User, error) {
+func (m *defaultUserModel) FindOneByMobile(ctx context.Context, mobile string) (*User, error) {
 	var resp User
 	query := fmt.Sprintf("select %s from %s where `mobile` = ? limit 1", userRows, m.table)
 	err := m.conn.QueryRowCtx(ctx, &resp, query, mobile)
@@ -93,14 +92,14 @@ func (m *defaultUserModel) FindOneByMobile(ctx context.Context, mobile sql.NullS
 }
 
 func (m *defaultUserModel) Insert(ctx context.Context, data *User) (sql.Result, error) {
-	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, userRowsExpectAutoSet)
-	ret, err := m.conn.ExecCtx(ctx, query, data.Mobile, data.Password, data.Avatar, data.Sex, data.Nickname, data.Salt, data.Online, data.Token, data.Memo, data.LastLoginAt)
+	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, userRowsExpectAutoSet)
+	ret, err := m.conn.ExecCtx(ctx, query, data.CustomId, data.Mobile, data.Password, data.Nickname, data.Avatar, data.Sex, data.Memo, data.Salt, data.LastLoginAt)
 	return ret, err
 }
 
 func (m *defaultUserModel) Update(ctx context.Context, newData *User) error {
 	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, userRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, newData.Mobile, newData.Password, newData.Avatar, newData.Sex, newData.Nickname, newData.Salt, newData.Online, newData.Token, newData.Memo, newData.LastLoginAt, newData.Id)
+	_, err := m.conn.ExecCtx(ctx, query, newData.CustomId, newData.Mobile, newData.Password, newData.Nickname, newData.Avatar, newData.Sex, newData.Memo, newData.Salt, newData.LastLoginAt, newData.Id)
 	return err
 }
 

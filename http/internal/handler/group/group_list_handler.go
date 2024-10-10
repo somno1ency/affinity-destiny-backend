@@ -5,7 +5,7 @@ import (
 
 	"ad.com/http/internal/logic/group"
 	"ad.com/http/internal/svc"
-	"github.com/zeromicro/go-zero/rest/httpx"
+	xhttp "github.com/zeromicro/x/http"
 )
 
 func GroupListHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
@@ -13,9 +13,9 @@ func GroupListHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		l := group.NewGroupListLogic(r.Context(), svcCtx)
 		resp, err := l.GroupList()
 		if err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
+			xhttp.JsonBaseResponseCtx(r.Context(), w, err)
 		} else {
-			httpx.OkJsonCtx(r.Context(), w, resp)
+			xhttp.JsonBaseResponseCtx(r.Context(), w, resp)
 		}
 	}
 }

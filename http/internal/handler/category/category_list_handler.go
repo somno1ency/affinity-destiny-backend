@@ -5,7 +5,7 @@ import (
 
 	"ad.com/http/internal/logic/category"
 	"ad.com/http/internal/svc"
-	"github.com/zeromicro/go-zero/rest/httpx"
+	xhttp "github.com/zeromicro/x/http"
 )
 
 func CategoryListHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
@@ -13,9 +13,9 @@ func CategoryListHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		l := category.NewCategoryListLogic(r.Context(), svcCtx)
 		resp, err := l.CategoryList()
 		if err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
+			xhttp.JsonBaseResponseCtx(r.Context(), w, err)
 		} else {
-			httpx.OkJsonCtx(r.Context(), w, resp)
+			xhttp.JsonBaseResponseCtx(r.Context(), w, resp)
 		}
 	}
 }

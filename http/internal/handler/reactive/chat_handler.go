@@ -5,7 +5,7 @@ import (
 
 	"ad.com/http/internal/logic/reactive"
 	"ad.com/http/internal/svc"
-	"github.com/zeromicro/go-zero/rest/httpx"
+	xhttp "github.com/zeromicro/x/http"
 )
 
 func ChatHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
@@ -13,9 +13,9 @@ func ChatHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		l := reactive.NewChatLogic(r.Context(), svcCtx)
 		err := l.Chat()
 		if err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
+			xhttp.JsonBaseResponseCtx(r.Context(), w, err)
 		} else {
-			httpx.Ok(w)
+			xhttp.JsonBaseResponseCtx(r.Context(), w, nil)
 		}
 	}
 }

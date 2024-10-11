@@ -16,8 +16,8 @@ import (
 var (
 	resourceFieldNames          = builder.RawFieldNames(&Resource{})
 	resourceRows                = strings.Join(resourceFieldNames, ",")
-	resourceRowsExpectAutoSet   = strings.Join(stringx.Remove(resourceFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), ",")
-	resourceRowsWithPlaceHolder = strings.Join(stringx.Remove(resourceFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), "=?,") + "=?"
+	resourceRowsExpectAutoSet   = strings.Join(stringx.Remove(resourceFieldNames, "`id`"), ",")
+	resourceRowsWithPlaceHolder = strings.Join(stringx.Remove(resourceFieldNames, "`id`"), "=?,") + "=?"
 )
 
 type (
@@ -72,14 +72,14 @@ func (m *defaultResourceModel) FindOne(ctx context.Context, id int64) (*Resource
 }
 
 func (m *defaultResourceModel) Insert(ctx context.Context, data *Resource) (sql.Result, error) {
-	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?)", m.table, resourceRowsExpectAutoSet)
-	ret, err := m.conn.ExecCtx(ctx, query, data.Src, data.Type, data.NameZh, data.NameEn)
+	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?)", m.table, resourceRowsExpectAutoSet)
+	ret, err := m.conn.ExecCtx(ctx, query, data.Src, data.Type, data.NameZh, data.NameEn, data.CreatedAt, data.UpdatedAt)
 	return ret, err
 }
 
 func (m *defaultResourceModel) Update(ctx context.Context, data *Resource) error {
 	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, resourceRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, data.Src, data.Type, data.NameZh, data.NameEn, data.Id)
+	_, err := m.conn.ExecCtx(ctx, query, data.Src, data.Type, data.NameZh, data.NameEn, data.CreatedAt, data.UpdatedAt, data.Id)
 	return err
 }
 

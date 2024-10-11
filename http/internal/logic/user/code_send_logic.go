@@ -2,9 +2,12 @@ package user
 
 import (
 	"context"
+	"fmt"
 
 	"ad.com/http/internal/svc"
 	"ad.com/http/internal/types"
+	"ad.com/pkg/exception"
+	"ad.com/pkg/shared"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -24,7 +27,14 @@ func NewCodeSendLogic(ctx context.Context, svcCtx *svc.ServiceContext) *CodeSend
 }
 
 func (l *CodeSendLogic) CodeSend(req *types.CodeSendReq) error {
-	// todo: add your logic here and delete this line
+	// code := util.GenId(6)
+	code := "123456"
+	logx.Infof("current code: %s", code)
+	// TODO: send code to phone
+	if err := l.svcCtx.RdsClient.Setex(fmt.Sprintf(shared.CodeSendToPhone, req.Mobile), code, shared.RdsCodeCacheTime); err != nil {
+		logx.Errorf("set code to redis failed, err: %v", err)
+		return &exception.CodeSendFailed
+	}
 
 	return nil
 }

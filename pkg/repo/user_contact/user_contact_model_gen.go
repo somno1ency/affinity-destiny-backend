@@ -16,8 +16,8 @@ import (
 var (
 	userContactFieldNames          = builder.RawFieldNames(&UserContact{})
 	userContactRows                = strings.Join(userContactFieldNames, ",")
-	userContactRowsExpectAutoSet   = strings.Join(stringx.Remove(userContactFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), ",")
-	userContactRowsWithPlaceHolder = strings.Join(stringx.Remove(userContactFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), "=?,") + "=?"
+	userContactRowsExpectAutoSet   = strings.Join(stringx.Remove(userContactFieldNames, "`id`"), ",")
+	userContactRowsWithPlaceHolder = strings.Join(stringx.Remove(userContactFieldNames, "`id`"), "=?,") + "=?"
 )
 
 type (
@@ -75,14 +75,14 @@ func (m *defaultUserContactModel) FindOne(ctx context.Context, id int64) (*UserC
 }
 
 func (m *defaultUserContactModel) Insert(ctx context.Context, data *UserContact) (sql.Result, error) {
-	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?)", m.table, userContactRowsExpectAutoSet)
-	ret, err := m.conn.ExecCtx(ctx, query, data.OwnerId, data.DstId, data.CategoryId, data.Background, data.IsDisturb, data.IsTop, data.IsRemind)
+	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, userContactRowsExpectAutoSet)
+	ret, err := m.conn.ExecCtx(ctx, query, data.OwnerId, data.DstId, data.CategoryId, data.Background, data.IsDisturb, data.IsTop, data.IsRemind, data.CreatedAt, data.UpdatedAt)
 	return ret, err
 }
 
 func (m *defaultUserContactModel) Update(ctx context.Context, data *UserContact) error {
 	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, userContactRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, data.OwnerId, data.DstId, data.CategoryId, data.Background, data.IsDisturb, data.IsTop, data.IsRemind, data.Id)
+	_, err := m.conn.ExecCtx(ctx, query, data.OwnerId, data.DstId, data.CategoryId, data.Background, data.IsDisturb, data.IsTop, data.IsRemind, data.CreatedAt, data.UpdatedAt, data.Id)
 	return err
 }
 

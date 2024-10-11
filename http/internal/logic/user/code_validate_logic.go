@@ -2,10 +2,16 @@ package user
 
 import (
 	"context"
+	"fmt"
+	"time"
 
 	"ad.com/http/internal/svc"
 	"ad.com/http/internal/types"
+	"ad.com/pkg/exception"
+	"ad.com/pkg/shared"
+	"ad.com/pkg/util"
 
+	"github.com/jinzhu/copier"
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -24,7 +30,28 @@ func NewCodeValidateLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Code
 }
 
 func (l *CodeValidateLogic) CodeValidate(req *types.CodeValidateReq) (resp *types.UserResp, err error) {
-	// todo: add your logic here and delete this line
+	code, err := l.svcCtx.RdsClient.Get(fmt.Sprintf(shared.CodeSendToPhone, req.Mobile))
+	if err != nil || code != req.Code {
+		logx.Errorf("validate code err, current code: %s, target code: %s", req.Code, code)
+		return nil, &exception.CodeValidateFailed
+	}
+	user, err := l.svcCtx.UserModel.FindOneByMobile(l.ctx, req.Mobile)
+	if err != nil {
+		logx.Errorf("find user by mobile failed, err: %v", err)
+		return nil, &exception.UserNotFound
+	}
 
-	return
+	resp = &types.UserResp{}
+	copier.Copy(resp, user)
+	resp.CreatedAt = user.CreatedAt.Time.Format(shared.TimeFormatTemplate)
+	resp.UpdatedAt = user.UpdatedAt.Time.Format(shared.TimeFormatTemplate)
+	resp.LastLoginAt = user.LastLoginAt.Time.Format(shared.TimeFormatTemplate)
+
+	user.LastLoginAt = util.ConvertTime(time.Now())
+	if err := l.svcCtx.UserModel.Update(l.ctx, user); err != nil {
+		logx.Errorf("update user login time failed, err: %v", err)
+		return nil, &exception.UserLoginTimeUpdateFailed
+	}
+
+	return resp, nil
 }

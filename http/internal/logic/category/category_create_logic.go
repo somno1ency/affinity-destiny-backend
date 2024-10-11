@@ -25,6 +25,5 @@ func NewCategoryCreateLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Ca
 
 func (l *CategoryCreateLogic) CategoryCreate(req *types.CategoryCreateReq) error {
 	// todo: add your logic here and delete this line
-
 	return nil
 }

@@ -8,12 +8,14 @@ import (
 	"ad.com/pkg/repo/resource"
 	"ad.com/pkg/repo/user"
 	"ad.com/pkg/repo/user_contact"
+	zeroRds "github.com/zeromicro/go-zero/core/stores/redis"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 )
 
 type ServiceContext struct {
 	Config            config.Config
 	Conn              sqlx.SqlConn
+	RdsClient         *zeroRds.Redis
 	UserModel         user.UserModel
 	UserContactModel  user_contact.UserContactModel
 	GroupModel        group.GroupModel
@@ -25,9 +27,12 @@ type ServiceContext struct {
 func NewServiceContext(c config.Config) *ServiceContext {
 	// here can make different model bind to different db
 	conn := sqlx.NewMysql(c.DataSource["Mysql"])
+	rdsClient := zeroRds.MustNewRedis(c.RedisConf)
+
 	return &ServiceContext{
 		Config:            c,
 		Conn:              conn,
+		RdsClient:         rdsClient,
 		UserModel:         user.NewUserModel(conn),
 		UserContactModel:  user_contact.NewUserContactModel(conn),
 		GroupModel:        group.NewGroupModel(conn),

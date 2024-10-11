@@ -16,8 +16,8 @@ import (
 var (
 	userFieldNames          = builder.RawFieldNames(&User{})
 	userRows                = strings.Join(userFieldNames, ",")
-	userRowsExpectAutoSet   = strings.Join(stringx.Remove(userFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), ",")
-	userRowsWithPlaceHolder = strings.Join(stringx.Remove(userFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), "=?,") + "=?"
+	userRowsExpectAutoSet   = strings.Join(stringx.Remove(userFieldNames, "`id`"), ",")
+	userRowsWithPlaceHolder = strings.Join(stringx.Remove(userFieldNames, "`id`"), "=?,") + "=?"
 )
 
 type (
@@ -92,14 +92,14 @@ func (m *defaultUserModel) FindOneByMobile(ctx context.Context, mobile string) (
 }
 
 func (m *defaultUserModel) Insert(ctx context.Context, data *User) (sql.Result, error) {
-	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, userRowsExpectAutoSet)
-	ret, err := m.conn.ExecCtx(ctx, query, data.CustomId, data.Mobile, data.Password, data.Nickname, data.Avatar, data.Sex, data.Memo, data.Salt, data.LastLoginAt)
+	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, userRowsExpectAutoSet)
+	ret, err := m.conn.ExecCtx(ctx, query, data.CustomId, data.Mobile, data.Password, data.Nickname, data.Avatar, data.Sex, data.Memo, data.Salt, data.CreatedAt, data.UpdatedAt, data.LastLoginAt)
 	return ret, err
 }
 
 func (m *defaultUserModel) Update(ctx context.Context, newData *User) error {
 	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, userRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, newData.CustomId, newData.Mobile, newData.Password, newData.Nickname, newData.Avatar, newData.Sex, newData.Memo, newData.Salt, newData.LastLoginAt, newData.Id)
+	_, err := m.conn.ExecCtx(ctx, query, newData.CustomId, newData.Mobile, newData.Password, newData.Nickname, newData.Avatar, newData.Sex, newData.Memo, newData.Salt, newData.CreatedAt, newData.UpdatedAt, newData.LastLoginAt, newData.Id)
 	return err
 }
 

@@ -4,7 +4,7 @@ package types
 type CategoryCreateReq struct {
 	NameZh string `json:"nameZh"`
 	NameEn string `json:"nameEn"`
-	Star   uint8  `json:"star"`
+	Star   int64  `json:"star"`
 }
 
 type CategoryResp struct {
@@ -12,7 +12,7 @@ type CategoryResp struct {
 	OwnerId   int64  `json:"ownerId"`
 	NameZh    string `json:"nameZh"`
 	NameEn    string `json:"nameEn"`
-	Star      uint8  `json:"star"`
+	Star      int64  `json:"star"`
 	CreatedAt string `json:"createdAt"`
 	UpdatedAt string `json:"updatedAt"`
 }
@@ -68,7 +68,7 @@ type GroupContactResp struct {
 		OwnerId   int64  `json:"ownerId"`
 		NameZh    string `json:"nameZh"`
 		NameEn    string `json:"nameEn"`
-		Star      uint8  `json:"star"`
+		Star      int64  `json:"star"`
 		CreatedAt string `json:"createdAt"`
 		UpdatedAt string `json:"updatedAt"`
 	} `json:"category"`
@@ -83,12 +83,12 @@ type GroupContactResp struct {
 		UpdatedAt string `json:"updatedAt"`
 	} `json:"group"`
 	User struct {
-		PathIdReq
+		Id          int64  `json:"id"`
 		CustomId    string `json:"customId"`
 		Mobile      string `json:"mobile"`
 		Nickname    string `json:"nickname"`
 		Avatar      string `json:"avatar"`
-		Sex         uint8  `json:"sex"`
+		Sex         int64  `json:"sex"`
 		Memo        string `json:"memo"`
 		CreatedAt   string `json:"createdAt"`
 		UpdatedAt   string `json:"updatedAt"`
@@ -127,6 +127,10 @@ type GroupUpdateReq struct {
 	GroupCreateReq
 }
 
+type PasswordResp struct {
+	IsSetPassword bool `json:"isSetPassword"`
+}
+
 type PathIdReq struct {
 	Id int64 `path:"id"`
 }
@@ -137,7 +141,7 @@ type PathIdStrReq struct {
 
 type ResourceCreateReq struct {
 	Src    string `json:"src"`
-	Type   uint8  `json:"type"`
+	Type   int64  `json:"type"`
 	NameZh string `json:"nameZh"`
 	NameEn string `json:"nameEn"`
 }
@@ -145,7 +149,7 @@ type ResourceCreateReq struct {
 type ResourceResp struct {
 	Id        int64  `json:"id"`
 	Src       string `json:"src"`
-	Type      uint8  `json:"type"`
+	Type      int64  `json:"type"`
 	NameZh    string `json:"nameZh"`
 	NameEn    string `json:"nameEn"`
 	CreatedAt string `json:"createdAt"`
@@ -153,7 +157,7 @@ type ResourceResp struct {
 }
 
 type ResourceType struct {
-	Type uint8 `path:"type"`
+	Type int64 `path:"type"`
 }
 
 type ResourceUpdateReq struct {
@@ -200,17 +204,17 @@ type UserContactResp struct {
 		OwnerId   int64  `json:"ownerId"`
 		NameZh    string `json:"nameZh"`
 		NameEn    string `json:"nameEn"`
-		Star      uint8  `json:"star"`
+		Star      int64  `json:"star"`
 		CreatedAt string `json:"createdAt"`
 		UpdatedAt string `json:"updatedAt"`
 	} `json:"category"`
 	User struct {
-		PathIdReq
+		Id          int64  `json:"id"`
 		CustomId    string `json:"customId"`
 		Mobile      string `json:"mobile"`
 		Nickname    string `json:"nickname"`
 		Avatar      string `json:"avatar"`
-		Sex         uint8  `json:"sex"`
+		Sex         int64  `json:"sex"`
 		Memo        string `json:"memo"`
 		CreatedAt   string `json:"createdAt"`
 		UpdatedAt   string `json:"updatedAt"`
@@ -225,16 +229,17 @@ type UserLoginReq struct {
 
 type UserPasswordReq struct {
 	PathIdReq
-	Password string `json:"password"`
+	OldPassword string `json:"oldPassword"`
+	NewPassword string `json:"newPassword"`
 }
 
 type UserResp struct {
-	PathIdReq
+	Id          int64  `json:"id"`
 	CustomId    string `json:"customId"`
 	Mobile      string `json:"mobile"`
 	Nickname    string `json:"nickname"`
 	Avatar      string `json:"avatar"`
-	Sex         uint8  `json:"sex"`
+	Sex         int64  `json:"sex"`
 	Memo        string `json:"memo"`
 	CreatedAt   string `json:"createdAt"`
 	UpdatedAt   string `json:"updatedAt"`
@@ -246,6 +251,6 @@ type UserUpdateReq struct {
 	CustomId string `json:"customId"`
 	Nickname string `json:"nickname"`
 	Avatar   string `json:"avatar"`
-	Sex      uint8  `json:"sex"`
+	Sex      int64  `json:"sex"`
 	Memo     string `json:"memo"`
 }

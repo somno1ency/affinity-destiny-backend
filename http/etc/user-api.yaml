@@ -2,5 +2,10 @@ Name: user-api
 Host: 0.0.0.0
 Port: 8888
 
-DataSource: 
+DataSource:
   Mysql: affinity_destiny:5b6ff4ef@tcp(mysql.sqlask.com:3306)/affinity_destiny?charset=utf8mb4&parseTime=True&loc=Local
+
+RedisConf:
+  Host: 127.0.0.1:6379
+  Type: node
+  Tls: false

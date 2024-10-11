@@ -5,6 +5,7 @@ import (
 
 	"ad.com/http/internal/svc"
 	"ad.com/http/internal/types"
+	"ad.com/pkg/exception"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -24,7 +25,20 @@ func NewUserUpdateLogic(ctx context.Context, svcCtx *svc.ServiceContext) *UserUp
 }
 
 func (l *UserUpdateLogic) UserUpdate(req *types.UserUpdateReq) error {
-	// todo: add your logic here and delete this line
+	user, err := l.svcCtx.UserModel.FindOne(l.ctx, req.Id)
+	if err != nil {
+		logx.Errorf("find user by id: %d failed, err: %v", req.Id, err)
+		return &exception.UserNotFound
+	}
+	user.CustomId = req.CustomId
+	user.Nickname = req.Nickname
+	user.Avatar = req.Avatar
+	user.Sex = req.Sex
+	user.Memo = req.Memo
+	if err := l.svcCtx.UserModel.Update(l.ctx, user); err != nil {
+		logx.Errorf("update user by id: %d failed, err: %v", req.Id, err)
+		return &exception.UserUpdateFailed
+	}
 
 	return nil
 }

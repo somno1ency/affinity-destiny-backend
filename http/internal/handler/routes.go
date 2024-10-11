@@ -214,6 +214,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Handler: user.UserUpdateHandler(serverCtx),
 			},
 			{
+				Method:  http.MethodGet,
+				Path:    "/:id/password",
+				Handler: user.PasswordIsSetHandler(serverCtx),
+			},
+			{
 				Method:  http.MethodPost,
 				Path:    "/:id/password",
 				Handler: user.PasswordSetHandler(serverCtx),

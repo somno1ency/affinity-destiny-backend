@@ -16,8 +16,8 @@ import (
 var (
 	groupContactFieldNames          = builder.RawFieldNames(&GroupContact{})
 	groupContactRows                = strings.Join(groupContactFieldNames, ",")
-	groupContactRowsExpectAutoSet   = strings.Join(stringx.Remove(groupContactFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), ",")
-	groupContactRowsWithPlaceHolder = strings.Join(stringx.Remove(groupContactFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), "=?,") + "=?"
+	groupContactRowsExpectAutoSet   = strings.Join(stringx.Remove(groupContactFieldNames, "`id`"), ",")
+	groupContactRowsWithPlaceHolder = strings.Join(stringx.Remove(groupContactFieldNames, "`id`"), "=?,") + "=?"
 )
 
 type (
@@ -77,14 +77,14 @@ func (m *defaultGroupContactModel) FindOne(ctx context.Context, id int64) (*Grou
 }
 
 func (m *defaultGroupContactModel) Insert(ctx context.Context, data *GroupContact) (sql.Result, error) {
-	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, groupContactRowsExpectAutoSet)
-	ret, err := m.conn.ExecCtx(ctx, query, data.GroupId, data.UserId, data.CategoryId, data.UserNickname, data.Remark, data.Background, data.IsDisturb, data.IsTop, data.IsShowNickname)
+	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, groupContactRowsExpectAutoSet)
+	ret, err := m.conn.ExecCtx(ctx, query, data.GroupId, data.UserId, data.CategoryId, data.UserNickname, data.Remark, data.Background, data.IsDisturb, data.IsTop, data.IsShowNickname, data.CreatedAt, data.UpdatedAt)
 	return ret, err
 }
 
 func (m *defaultGroupContactModel) Update(ctx context.Context, data *GroupContact) error {
 	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, groupContactRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, data.GroupId, data.UserId, data.CategoryId, data.UserNickname, data.Remark, data.Background, data.IsDisturb, data.IsTop, data.IsShowNickname, data.Id)
+	_, err := m.conn.ExecCtx(ctx, query, data.GroupId, data.UserId, data.CategoryId, data.UserNickname, data.Remark, data.Background, data.IsDisturb, data.IsTop, data.IsShowNickname, data.CreatedAt, data.UpdatedAt, data.Id)
 	return err
 }
 

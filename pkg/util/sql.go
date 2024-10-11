@@ -5,8 +5,8 @@ import (
 	"time"
 )
 
-func ConvertString(str string) sql.NullString {
-	if str == "" {
+func ConvertString(value string) sql.NullString {
+	if value == "" {
 		return sql.NullString{
 			String: "",
 			Valid:  false,
@@ -14,28 +14,28 @@ func ConvertString(str string) sql.NullString {
 	}
 
 	return sql.NullString{
-		String: str,
+		String: value,
 		Valid:  true,
 	}
 }
 
-func ConvertInt64(i int64) sql.NullInt64 {
+func ConvertInt64(value int64) sql.NullInt64 {
 	return sql.NullInt64{
-		Int64: i,
+		Int64: value,
 		Valid: true,
 	}
 }
 
-func ConvertTime(time time.Time) sql.NullTime {
-	if time.IsZero() {
+func ConvertTime(value time.Time) sql.NullTime {
+	if value.IsZero() {
 		return sql.NullTime{
-			Time:  time,
+			Time:  value,
 			Valid: false,
 		}
 	}
 
 	return sql.NullTime{
-		Time:  time,
+		Time:  value,
 		Valid: true,
 	}
 }

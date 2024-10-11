@@ -16,8 +16,8 @@ import (
 var (
 	groupFieldNames          = builder.RawFieldNames(&Group{})
 	groupRows                = strings.Join(groupFieldNames, ",")
-	groupRowsExpectAutoSet   = strings.Join(stringx.Remove(groupFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), ",")
-	groupRowsWithPlaceHolder = strings.Join(stringx.Remove(groupFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), "=?,") + "=?"
+	groupRowsExpectAutoSet   = strings.Join(stringx.Remove(groupFieldNames, "`id`"), ",")
+	groupRowsWithPlaceHolder = strings.Join(stringx.Remove(groupFieldNames, "`id`"), "=?,") + "=?"
 )
 
 type (
@@ -88,14 +88,14 @@ func (m *defaultGroupModel) FindOneByName(ctx context.Context, name string) (*Gr
 }
 
 func (m *defaultGroupModel) Insert(ctx context.Context, data *Group) (sql.Result, error) {
-	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?)", m.table, groupRowsExpectAutoSet)
-	ret, err := m.conn.ExecCtx(ctx, query, data.CustomId, data.Name, data.OwnerId, data.Avatar, data.Memo)
+	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?)", m.table, groupRowsExpectAutoSet)
+	ret, err := m.conn.ExecCtx(ctx, query, data.CustomId, data.Name, data.OwnerId, data.Avatar, data.Memo, data.CreatedAt, data.UpdatedAt)
 	return ret, err
 }
 
 func (m *defaultGroupModel) Update(ctx context.Context, newData *Group) error {
 	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, groupRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, newData.CustomId, newData.Name, newData.OwnerId, newData.Avatar, newData.Memo, newData.Id)
+	_, err := m.conn.ExecCtx(ctx, query, newData.CustomId, newData.Name, newData.OwnerId, newData.Avatar, newData.Memo, newData.CreatedAt, newData.UpdatedAt, newData.Id)
 	return err
 }
 

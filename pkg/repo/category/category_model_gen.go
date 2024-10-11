@@ -16,8 +16,8 @@ import (
 var (
 	categoryFieldNames          = builder.RawFieldNames(&Category{})
 	categoryRows                = strings.Join(categoryFieldNames, ",")
-	categoryRowsExpectAutoSet   = strings.Join(stringx.Remove(categoryFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), ",")
-	categoryRowsWithPlaceHolder = strings.Join(stringx.Remove(categoryFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), "=?,") + "=?"
+	categoryRowsExpectAutoSet   = strings.Join(stringx.Remove(categoryFieldNames, "`id`"), ",")
+	categoryRowsWithPlaceHolder = strings.Join(stringx.Remove(categoryFieldNames, "`id`"), "=?,") + "=?"
 )
 
 type (
@@ -72,14 +72,14 @@ func (m *defaultCategoryModel) FindOne(ctx context.Context, id int64) (*Category
 }
 
 func (m *defaultCategoryModel) Insert(ctx context.Context, data *Category) (sql.Result, error) {
-	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?)", m.table, categoryRowsExpectAutoSet)
-	ret, err := m.conn.ExecCtx(ctx, query, data.OwnerId, data.NameZh, data.NameEn, data.Star)
+	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?)", m.table, categoryRowsExpectAutoSet)
+	ret, err := m.conn.ExecCtx(ctx, query, data.OwnerId, data.NameZh, data.NameEn, data.Star, data.CreatedAt, data.UpdatedAt)
 	return ret, err
 }
 
 func (m *defaultCategoryModel) Update(ctx context.Context, data *Category) error {
 	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, categoryRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, data.OwnerId, data.NameZh, data.NameEn, data.Star, data.Id)
+	_, err := m.conn.ExecCtx(ctx, query, data.OwnerId, data.NameZh, data.NameEn, data.Star, data.CreatedAt, data.UpdatedAt, data.Id)
 	return err
 }
 

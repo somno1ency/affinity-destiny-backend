@@ -1,3 +1,7 @@
+-- Copyright 2024 Mackay Zhou <mackay.chow@gmail.com>. All rights reserved.
+-- Use of this source code is governed by a MIT style
+-- license that can be found in the LICENSE file.
+
 CREATE TABLE `group` (
   `id` BIGINT NOT NULL AUTO_INCREMENT,
   `custom_id` VARCHAR(10) NOT NULL DEFAULT '' COMMENT "群标识",

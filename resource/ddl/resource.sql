@@ -1,3 +1,7 @@
+-- Copyright 2024 Mackay Zhou <mackay.chow@gmail.com>. All rights reserved.
+-- Use of this source code is governed by a MIT style
+-- license that can be found in the LICENSE file.
+
 CREATE TABLE `resource` (
   `id` BIGINT NOT NULL AUTO_INCREMENT,
   `src` VARCHAR(120) NOT NULL DEFAULT '' COMMENT '资源地址',

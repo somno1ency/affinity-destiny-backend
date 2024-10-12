@@ -1,30 +1,45 @@
+# Copyright 2024 Mackay Zhou <mackay.chow@gmail.com>. All rights reserved.
+# Use of this source code is governed by a MIT style
+# license that can be found in the LICENSE file.
+
+include resource/script/make-rule/common.mk
+include resource/script/make-rule/copyright.mk
+include resource/script/make-rule/dependency.mk
+include resource/script/make-rule/gen.mk
+include resource/script/make-rule/go.mk 
+include resource/script/make-rule/tool.mk
+
 # build all by default, even if it's not first
 .DEFAULT_GOAL := all
 
-# ==============================================================================
-# Includes
-include resource/script/make-rule/go.mk 
-
 .PHONY: all
-all: tidy gen cr format lint cover build
+all: dependency update add-cr
+
+.PHONY: dependency
+dependency:
+	@$(MAKE) dependency.run
+
+.PHONY: update
+update:
+	@$(MAKE) go.update
 
 .PHONY: tidy
 tidy:
-	@$(GO) mod tidy
+	@$(MAKE) dependency.package
 
-.PHONY: gen.api
-gen.api:
-	@$(GO_CTL) api go -api ./http/api/v1/affinity_destiny.api --dir ./http --style go_zero
+.PHONY: gen
+gen:
+	@$(MAKE) gen.api
+	@$(MAKE) gen.model
 
-.PHONY: gen.model
-gen.model:
-	@$(GO_CTL) model mysql ddl -s ./resource/ddl/user.sql -d ./pkg/repo/user -i '' --style go_zero
-	@$(GO_CTL) model mysql ddl -s ./resource/ddl/user_contact.sql -d ./pkg/repo/user_contact -i '' --style go_zero
-	@$(GO_CTL) model mysql ddl -s ./resource/ddl/group.sql -d ./pkg/repo/group -i '' --style go_zero
-	@$(GO_CTL) model mysql ddl -s ./resource/ddl/group_contact.sql -d ./pkg/repo/group_contact -i '' --style go_zero
-	@$(GO_CTL) model mysql ddl -s ./resource/ddl/category.sql -d ./pkg/repo/category -i '' --style go_zero
-	@$(GO_CTL) model mysql ddl -s ./resource/ddl/resource.sql -d ./pkg/repo/resource -i '' --style go_zero
+.PHONY: gen-api
+gen-api:
+	@$(MAKE) gen.api
 
-.PHONY: format.api
-format.api:
-	@$(GO_CTL) api format --dir ./http/api
+.PHONY: gen-model
+gen-model:
+	@$(MAKE) gen.model
+
+.PHONY: add-cr
+add-cr:
+	@$(MAKE) cr.add

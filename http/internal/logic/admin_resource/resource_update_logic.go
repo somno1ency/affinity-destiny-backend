@@ -6,10 +6,14 @@ package admin_resource
 
 import (
 	"context"
+	"time"
 
 	"ad.com/http/internal/svc"
 	"ad.com/http/internal/types"
+	"ad.com/pkg/exception"
+	"ad.com/pkg/util"
 
+	"github.com/jinzhu/copier"
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -28,7 +32,17 @@ func NewResourceUpdateLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Re
 }
 
 func (l *ResourceUpdateLogic) ResourceUpdate(req *types.ResourceUpdateReq) error {
-	// todo: add your logic here and delete this line
+	resource, err := l.svcCtx.ResourceModel.FindOne(l.ctx, req.Id)
+	if err != nil {
+		logx.Errorf("find resource by id: %d failed, err: %v", req.Id, err)
+		return &exception.ResourceNotFound
+	}
+	copier.Copy(resource, req)
+	resource.UpdatedAt = util.ConvertTime(time.Now())
+	if err := l.svcCtx.ResourceModel.Update(l.ctx, resource); err != nil {
+		logx.Errorf("update resource by id: %d failed, err: %v", req.Id, err)
+		return &exception.ResourceUpdateFailed
+	}
 
 	return nil
 }

@@ -69,6 +69,7 @@ service user-api {
 	post /login (UserLoginReq) returns (UserResp)
 
 	@handler UserFind
+	// id: customId/mobile
 	get /:id (PathIdStrReq) returns (UserResp)
 
 	@handler UserUpdate
@@ -111,7 +112,8 @@ type (
 )
 service user-api {
 	@handler CategoryList
-	get / returns ([]CategoryResp)
+	// id: ownerId
+	get /:id (PathIdReq) returns ([]CategoryResp)
 
 	@handler CategoryCreate
 	post / (CategoryCreateReq)
@@ -163,6 +165,7 @@ service user-api {
 	get / returns ([]UserContactResp)
 
 	@handler UserContactAdd
+	// id: dstId
 	post /:id (PathIdReq)
 
 	@handler UserContactDelete
@@ -318,8 +321,9 @@ service user-api {
 
 // ==========6.Resource==========
 type (
-	ResourceType {
-		Type int64 `path:"type"`
+	ResourceListReq {
+		Type int64 `form:"type,default=0"`
+		QueryListReq
 	}
 	ResourceCreateReq {
 		Src    string `json:"src"`
@@ -340,6 +344,13 @@ type (
 		CreatedAt string `json:"createdAt"`
 		UpdatedAt string `json:"updatedAt"`
 	}
+	ResourcePagedResp {
+		Page       int64          `json:"page"`
+		PageSize   int64          `json:"pageSize"`
+		TotalPage  int64          `json:"totalPage"`
+		TotalCount int64          `json:"totalCount"`
+		Data       []ResourceResp `json:"data"`
+	}
 )
 
 @server (
@@ -349,7 +360,7 @@ type (
 )
 service user-api {
 	@handler ResourceList
-	get /:type (ResourceType) returns ([]ResourceResp)
+	get / (ResourceListReq) returns ([]ResourcePagedResp)
 }
 
 @server (
@@ -359,7 +370,7 @@ service user-api {
 )
 service user-api {
 	@handler ResourceList
-	get /:type (ResourceType) returns ([]ResourceResp)
+	get / (ResourceListReq) returns ([]ResourcePagedResp)
 
 	@handler ResourceCreate
 	post / (ResourceCreateReq)
@@ -393,4 +404,3 @@ service user-api {
 	@handler Upload
 	get /upload (UploadReq) returns (UploadResp)
 }
-

@@ -20,3 +20,10 @@ type PathIdStrReq {
 	Id string `path:"id"`
 }
 
+type QueryListReq {
+	Page       int64  `form:"page,default=1"`
+	PageSize   int64  `form:"pageSize,default=20"`
+	OrderField string `form:"orderField,default=id"`
+	Asc        bool   `form:"asc,default=true"`
+}
+

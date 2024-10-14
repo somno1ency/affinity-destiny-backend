@@ -26,6 +26,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 	server.AddRoutes(
 		[]rest.Route{
 			{
+				Method:  http.MethodGet,
+				Path:    "/",
+				Handler: admin_resource.ResourceListHandler(serverCtx),
+			},
+			{
 				Method:  http.MethodPost,
 				Path:    "/",
 				Handler: admin_resource.ResourceCreateHandler(serverCtx),
@@ -40,11 +45,6 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Path:    "/:id",
 				Handler: admin_resource.ResourceDeleteHandler(serverCtx),
 			},
-			{
-				Method:  http.MethodGet,
-				Path:    "/:type",
-				Handler: admin_resource.ResourceListHandler(serverCtx),
-			},
 		},
 		rest.WithPrefix("/v1/admin/resources"),
 		rest.WithTimeout(10000*time.Millisecond),
@@ -53,14 +53,14 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 	server.AddRoutes(
 		[]rest.Route{
 			{
-				Method:  http.MethodGet,
-				Path:    "/",
-				Handler: category.CategoryListHandler(serverCtx),
-			},
-			{
 				Method:  http.MethodPost,
 				Path:    "/",
 				Handler: category.CategoryCreateHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/:id",
+				Handler: category.CategoryListHandler(serverCtx),
 			},
 			{
 				Method:  http.MethodPut,
@@ -197,7 +197,7 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 		[]rest.Route{
 			{
 				Method:  http.MethodGet,
-				Path:    "/:type",
+				Path:    "/",
 				Handler: resource.ResourceListHandler(serverCtx),
 			},
 		},

@@ -143,11 +143,31 @@ type PathIdStrReq struct {
 	Id string `path:"id"`
 }
 
+type QueryListReq struct {
+	Page       int64  `form:"page,default=1"`
+	PageSize   int64  `form:"pageSize,default=20"`
+	OrderField string `form:"orderField,default=id"`
+	Asc        bool   `form:"asc,default=true"`
+}
+
 type ResourceCreateReq struct {
 	Src    string `json:"src"`
 	Type   int64  `json:"type"`
 	NameZh string `json:"nameZh"`
 	NameEn string `json:"nameEn"`
+}
+
+type ResourceListReq struct {
+	Type int64 `form:"type,default=0"`
+	QueryListReq
+}
+
+type ResourcePagedResp struct {
+	Page       int64          `json:"page"`
+	PageSize   int64          `json:"pageSize"`
+	TotalPage  int64          `json:"totalPage"`
+	TotalCount int64          `json:"totalCount"`
+	Data       []ResourceResp `json:"data"`
 }
 
 type ResourceResp struct {
@@ -158,10 +178,6 @@ type ResourceResp struct {
 	NameEn    string `json:"nameEn"`
 	CreatedAt string `json:"createdAt"`
 	UpdatedAt string `json:"updatedAt"`
-}
-
-type ResourceType struct {
-	Type int64 `path:"type"`
 }
 
 type ResourceUpdateReq struct {

@@ -9,6 +9,7 @@ import (
 
 	"ad.com/http/internal/svc"
 	"ad.com/http/internal/types"
+	"ad.com/pkg/exception"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -28,7 +29,10 @@ func NewResourceDeleteLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Re
 }
 
 func (l *ResourceDeleteLogic) ResourceDelete(req *types.PathIdReq) error {
-	// todo: add your logic here and delete this line
+	if err := l.svcCtx.ResourceModel.Delete(l.ctx, req.Id); err != nil {
+		logx.Errorf("delete resource by id: %d failed, err: %v", req.Id, err)
+		return &exception.ResourceDeleteFailed
+	}
 
 	return nil
 }

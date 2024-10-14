@@ -6,10 +6,12 @@ package user
 
 import (
 	"context"
+	"time"
 
 	"ad.com/http/internal/svc"
 	"ad.com/http/internal/types"
 	"ad.com/pkg/exception"
+	"ad.com/pkg/util"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -39,6 +41,7 @@ func (l *UserUpdateLogic) UserUpdate(req *types.UserUpdateReq) error {
 	user.Avatar = req.Avatar
 	user.Sex = req.Sex
 	user.Memo = req.Memo
+	user.UpdatedAt = util.ConvertTime(time.Now())
 	if err := l.svcCtx.UserModel.Update(l.ctx, user); err != nil {
 		logx.Errorf("update user by id: %d failed, err: %v", req.Id, err)
 		return &exception.UserUpdateFailed

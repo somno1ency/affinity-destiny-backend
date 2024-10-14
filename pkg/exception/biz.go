@@ -36,4 +36,11 @@ var (
 	GroupQualityLimited errors.CodeMsg = errors.CodeMsg{Code: 100204, Msg: "每个人创建的群不能超过" + strconv.FormatInt(shared.GroupMaxQuantity, 10) + "个..."}
 	GroupAlreadyIn      errors.CodeMsg = errors.CodeMsg{Code: 100205, Msg: "您已经是该群成员..."}
 	GroupJoinFailed     errors.CodeMsg = errors.CodeMsg{Code: 100206, Msg: "加入群失败..."}
+
+	ResourceCreateFailed    errors.CodeMsg = errors.CodeMsg{Code: 600101, Msg: "资源创建失败..."}
+	ResourceDeleteFailed    errors.CodeMsg = errors.CodeMsg{Code: 600102, Msg: "资源删除失败..."}
+	ResourceNotFound        errors.CodeMsg = errors.CodeMsg{Code: 600103, Msg: "资源不存在..."}
+	ResourceUpdateFailed    errors.CodeMsg = errors.CodeMsg{Code: 600104, Msg: "资源更新失败..."}
+	ResourceListQueryFailed errors.CodeMsg = errors.CodeMsg{Code: 600105, Msg: "资源列表查询失败..."}
+	ResourceCountFailed     errors.CodeMsg = errors.CodeMsg{Code: 600106, Msg: "资源数量查询失败..."}
 )

@@ -16,7 +16,7 @@ import (
 
 func ResourceListHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req types.ResourceType
+		var req types.ResourceListReq
 		if err := httpx.Parse(r, &req); err != nil {
 			xhttp.JsonBaseResponseCtx(r.Context(), w, err)
 			return

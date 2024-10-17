@@ -6,10 +6,14 @@ package category
 
 import (
 	"context"
+	"time"
 
 	"ad.com/http/internal/svc"
 	"ad.com/http/internal/types"
+	"ad.com/pkg/exception"
+	"ad.com/pkg/util"
 
+	"github.com/jinzhu/copier"
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -28,7 +32,17 @@ func NewCategoryUpdateLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Ca
 }
 
 func (l *CategoryUpdateLogic) CategoryUpdate(req *types.CategoryUpdateReq) error {
-	// todo: add your logic here and delete this line
+	category, err := l.svcCtx.CategoryModel.FindOne(l.ctx, req.Id)
+	if err != nil {
+		logx.Errorf("find category by id: %d failed, err: %v", req.Id, err)
+		return &exception.CategoryNotFound
+	}
+	copier.Copy(category, req)
+	category.UpdatedAt = util.ConvertTime(time.Now())
+	if err := l.svcCtx.CategoryModel.Update(l.ctx, category); err != nil {
+		logx.Errorf("update category by id: %d failed, err: %v", req.Id, err)
+		return &exception.CategoryUpdateFailed
+	}
 
 	return nil
 }

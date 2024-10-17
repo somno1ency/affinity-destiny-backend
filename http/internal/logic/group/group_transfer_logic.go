@@ -13,35 +13,38 @@ import (
 	"ad.com/pkg/exception"
 	"ad.com/pkg/util"
 
-	"github.com/jinzhu/copier"
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
-type GroupUpdateLogic struct {
+type GroupTransferLogic struct {
 	logx.Logger
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 }
 
-func NewGroupUpdateLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GroupUpdateLogic {
-	return &GroupUpdateLogic{
+func NewGroupTransferLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GroupTransferLogic {
+	return &GroupTransferLogic{
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
 		svcCtx: svcCtx,
 	}
 }
 
-func (l *GroupUpdateLogic) GroupUpdate(req *types.GroupUpdateReq) error {
+func (l *GroupTransferLogic) GroupTransfer(req *types.GroupTransferReq) error {
 	group, err := l.svcCtx.GroupModel.FindOne(l.ctx, req.Id)
 	if err != nil {
 		logx.Errorf("find group by id: %d failed, err: %v", req.Id, err)
 		return &exception.GroupNotFound
 	}
-	copier.Copy(group, req)
+	if group.OwnerId == req.OwnerId {
+		logx.Errorf("can't transfer group to yourself, group id: %d", req.Id)
+		return &exception.GroupTransferToSelfError
+	}
+	group.OwnerId = req.OwnerId
 	group.UpdatedAt = util.ConvertTime(time.Now())
 	if err := l.svcCtx.GroupModel.Update(l.ctx, group); err != nil {
-		logx.Errorf("update group by id: %d failed, err: %v", req.Id, err)
-		return &exception.GroupUpdateFailed
+		logx.Errorf("transfer group by id: %d failed, err: %v", req.Id, err)
+		return &exception.GroupTransferFailed
 	}
 
 	return nil

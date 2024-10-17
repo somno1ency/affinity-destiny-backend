@@ -9,6 +9,7 @@ import (
 
 	"ad.com/http/internal/svc"
 	"ad.com/http/internal/types"
+	"ad.com/pkg/exception"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -28,7 +29,14 @@ func NewCategoryDeleteLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Ca
 }
 
 func (l *CategoryDeleteLogic) CategoryDelete(req *types.PathIdReq) error {
-	// todo: add your logic here and delete this line
+	if _, err := l.svcCtx.CategoryModel.FindOne(l.ctx, req.Id); err != nil {
+		logx.Errorf("find category by id: %d failed, err: %v", req.Id, err)
+		return &exception.CategoryNotFound
+	}
+	if err := l.svcCtx.CategoryModel.Delete(l.ctx, req.Id); err != nil {
+		logx.Errorf("delete category by id: %d failed, err: %v", req.Id, err)
+		return &exception.CategoryDeleteFailed
+	}
 
 	return nil
 }

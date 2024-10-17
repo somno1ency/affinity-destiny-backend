@@ -6,10 +6,15 @@ package group
 
 import (
 	"context"
+	"time"
 
 	"ad.com/http/internal/svc"
 	"ad.com/http/internal/types"
+	"ad.com/pkg/exception"
+	"ad.com/pkg/repo/group"
+	"ad.com/pkg/util"
 
+	"github.com/jinzhu/copier"
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -28,7 +33,17 @@ func NewGroupCreateLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Group
 }
 
 func (l *GroupCreateLogic) GroupCreate(req *types.GroupCreateReq) error {
-	// todo: add your logic here and delete this line
+	group := &group.Group{}
+	copier.Copy(group, req)
+	// TODO: set ownerId from token, assume ownerId = 1
+	var ownerId int64 = 1
+	group.OwnerId = ownerId
+	group.CustomId = util.GenCode(10, false)
+	group.CreatedAt = util.ConvertTime(time.Now())
+	if _, err := l.svcCtx.GroupModel.Insert(l.ctx, group); err != nil {
+		logx.Errorf("insert group failed, err: %v", err)
+		return &exception.GroupCreateFailed
+	}
 
 	return nil
 }

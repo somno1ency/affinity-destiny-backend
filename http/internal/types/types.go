@@ -11,6 +11,11 @@ type CategoryCreateReq struct {
 	Star   int64  `json:"star"`
 }
 
+type CategoryPagedResp struct {
+	PagedResp
+	Data []CategoryResp `json:"data"`
+}
+
 type CategoryResp struct {
 	Id        int64  `json:"id"`
 	OwnerId   int64  `json:"ownerId"`
@@ -115,6 +120,11 @@ type GroupIdReq struct {
 	GroupId int64 `path:"groupId"`
 }
 
+type GroupPagedResp struct {
+	PagedResp
+	Data []GroupResp `json:"data"`
+}
+
 type GroupResp struct {
 	Id        int64  `json:"id"`
 	CustomId  string `json:"customId"`
@@ -126,9 +136,21 @@ type GroupResp struct {
 	UpdatedAt string `json:"updatedAt"`
 }
 
+type GroupTransferReq struct {
+	PathIdReq
+	OwnerId int64 `json:"ownerId"`
+}
+
 type GroupUpdateReq struct {
 	PathIdReq
 	GroupCreateReq
+}
+
+type PagedResp struct {
+	Page       int64 `json:"page"`
+	PageSize   int64 `json:"pageSize"`
+	TotalPage  int64 `json:"totalPage"`
+	TotalCount int64 `json:"totalCount"`
 }
 
 type PasswordResp struct {
@@ -163,11 +185,8 @@ type ResourceListReq struct {
 }
 
 type ResourcePagedResp struct {
-	Page       int64          `json:"page"`
-	PageSize   int64          `json:"pageSize"`
-	TotalPage  int64          `json:"totalPage"`
-	TotalCount int64          `json:"totalCount"`
-	Data       []ResourceResp `json:"data"`
+	PagedResp
+	Data []ResourceResp `json:"data"`
 }
 
 type ResourceResp struct {

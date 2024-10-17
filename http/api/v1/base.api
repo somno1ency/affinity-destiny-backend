@@ -27,3 +27,10 @@ type QueryListReq {
 	Asc        bool   `form:"asc,default=true"`
 }
 
+type PagedResp {
+	Page       int64 `json:"page"`
+	PageSize   int64 `json:"pageSize"`
+	TotalPage  int64 `json:"totalPage"`
+	TotalCount int64 `json:"totalCount"`
+}
+

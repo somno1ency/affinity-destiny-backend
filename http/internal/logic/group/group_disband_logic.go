@@ -9,6 +9,7 @@ import (
 
 	"ad.com/http/internal/svc"
 	"ad.com/http/internal/types"
+	"ad.com/pkg/exception"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -28,7 +29,14 @@ func NewGroupDisbandLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Grou
 }
 
 func (l *GroupDisbandLogic) GroupDisband(req *types.PathIdReq) error {
-	// todo: add your logic here and delete this line
+	if _, err := l.svcCtx.GroupModel.FindOne(l.ctx, req.Id); err != nil {
+		logx.Errorf("find group by id: %d failed, err: %v", req.Id, err)
+		return &exception.GroupNotFound
+	}
+	if err := l.svcCtx.GroupModel.Delete(l.ctx, req.Id); err != nil {
+		logx.Errorf("disband group by id: %d failed, err: %v", req.Id, err)
+		return &exception.GroupDisbandFailed
+	}
 
 	return nil
 }

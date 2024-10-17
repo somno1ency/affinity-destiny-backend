@@ -29,6 +29,10 @@ func NewResourceDeleteLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Re
 }
 
 func (l *ResourceDeleteLogic) ResourceDelete(req *types.PathIdReq) error {
+	if _, err := l.svcCtx.ResourceModel.FindOne(l.ctx, req.Id); err != nil {
+		logx.Errorf("find resource by id: %d failed, err: %v", req.Id, err)
+		return &exception.ResourceNotFound
+	}
 	if err := l.svcCtx.ResourceModel.Delete(l.ctx, req.Id); err != nil {
 		logx.Errorf("delete resource by id: %d failed, err: %v", req.Id, err)
 		return &exception.ResourceDeleteFailed

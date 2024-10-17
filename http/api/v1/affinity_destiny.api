@@ -103,6 +103,10 @@ type (
 		CreatedAt string `json:"createdAt"`
 		UpdatedAt string `json:"updatedAt"`
 	}
+	CategoryPagedResp {
+		PagedResp
+		Data []CategoryResp `json:"data"`
+	}
 )
 
 @server (
@@ -112,8 +116,7 @@ type (
 )
 service user-api {
 	@handler CategoryList
-	// id: ownerId
-	get /:id (PathIdReq) returns ([]CategoryResp)
+	get / (QueryListReq) returns (CategoryPagedResp)
 
 	@handler CategoryCreate
 	post / (CategoryCreateReq)
@@ -198,6 +201,10 @@ type (
 		PathIdReq
 		GroupCreateReq
 	}
+	GroupTransferReq {
+		PathIdReq
+		OwnerId int64 `json:"ownerId"`
+	}
 	GroupResp {
 		Id        int64  `json:"id"`
 		CustomId  string `json:"customId"`
@@ -208,6 +215,10 @@ type (
 		CreatedAt string `json:"createdAt"`
 		UpdatedAt string `json:"updatedAt"`
 	}
+	GroupPagedResp {
+		PagedResp
+		Data []GroupResp `json:"data"`
+	}
 )
 
 @server (
@@ -217,7 +228,7 @@ type (
 )
 service user-api {
 	@handler GroupList
-	get / returns ([]GroupResp)
+	get / (QueryListReq) returns (GroupPagedResp)
 
 	@handler GroupCreate
 	post / (GroupCreateReq)
@@ -225,10 +236,11 @@ service user-api {
 	@handler GroupUpdate
 	put /:id (GroupUpdateReq)
 
-	@handler GroupDelete
-	delete /:id (PathIdReq)
+	// only owner can do this, transfer the admin to another user
+	@handler GroupTransfer
+	post /:id/transfer (GroupTransferReq)
 
-	// only owner can do this
+	// only owner can do this, the actual operation is to delete the group
 	@handler GroupDisband
 	post /:id/disband (PathIdReq)
 }
@@ -345,11 +357,8 @@ type (
 		UpdatedAt string `json:"updatedAt"`
 	}
 	ResourcePagedResp {
-		Page       int64          `json:"page"`
-		PageSize   int64          `json:"pageSize"`
-		TotalPage  int64          `json:"totalPage"`
-		TotalCount int64          `json:"totalCount"`
-		Data       []ResourceResp `json:"data"`
+		PagedResp
+		Data []ResourceResp `json:"data"`
 	}
 )
 
@@ -360,7 +369,7 @@ type (
 )
 service user-api {
 	@handler ResourceList
-	get / (ResourceListReq) returns ([]ResourcePagedResp)
+	get / (ResourceListReq) returns (ResourcePagedResp)
 }
 
 @server (
@@ -370,7 +379,7 @@ service user-api {
 )
 service user-api {
 	@handler ResourceList
-	get / (ResourceListReq) returns ([]ResourcePagedResp)
+	get / (ResourceListReq) returns (ResourcePagedResp)
 
 	@handler ResourceCreate
 	post / (ResourceCreateReq)
@@ -404,3 +413,4 @@ service user-api {
 	@handler Upload
 	get /upload (UploadReq) returns (UploadResp)
 }
+

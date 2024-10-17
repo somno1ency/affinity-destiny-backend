@@ -14,16 +14,16 @@ import (
 	xhttp "github.com/zeromicro/x/http"
 )
 
-func GroupDeleteHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+func GroupTransferHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req types.PathIdReq
+		var req types.GroupTransferReq
 		if err := httpx.Parse(r, &req); err != nil {
 			xhttp.JsonBaseResponseCtx(r.Context(), w, err)
 			return
 		}
 
-		l := group.NewGroupDeleteLogic(r.Context(), svcCtx)
-		err := l.GroupDelete(&req)
+		l := group.NewGroupTransferLogic(r.Context(), svcCtx)
+		err := l.GroupTransfer(&req)
 		if err != nil {
 			xhttp.JsonBaseResponseCtx(r.Context(), w, err)
 		} else {

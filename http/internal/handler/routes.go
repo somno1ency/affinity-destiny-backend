@@ -53,14 +53,14 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 	server.AddRoutes(
 		[]rest.Route{
 			{
+				Method:  http.MethodGet,
+				Path:    "/",
+				Handler: category.CategoryListHandler(serverCtx),
+			},
+			{
 				Method:  http.MethodPost,
 				Path:    "/",
 				Handler: category.CategoryCreateHandler(serverCtx),
-			},
-			{
-				Method:  http.MethodGet,
-				Path:    "/:id",
-				Handler: category.CategoryListHandler(serverCtx),
 			},
 			{
 				Method:  http.MethodPut,
@@ -95,14 +95,14 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Handler: group.GroupUpdateHandler(serverCtx),
 			},
 			{
-				Method:  http.MethodDelete,
-				Path:    "/:id",
-				Handler: group.GroupDeleteHandler(serverCtx),
-			},
-			{
 				Method:  http.MethodPost,
 				Path:    "/:id/disband",
 				Handler: group.GroupDisbandHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/:id/transfer",
+				Handler: group.GroupTransferHandler(serverCtx),
 			},
 		},
 		rest.WithPrefix("/v1/groups"),

@@ -227,6 +227,11 @@ type UserContactIsSet struct {
 	Value bool `json:"value"`
 }
 
+type UserContactPagedResp struct {
+	PagedResp
+	Data []UserContactResp `json:"data"`
+}
+
 type UserContactResp struct {
 	Id         int64  `json:"id"`
 	OwnerId    int64  `json:"ownerId"`

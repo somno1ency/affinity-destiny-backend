@@ -12,6 +12,7 @@ import (
 	"ad.com/http/internal/svc"
 	"ad.com/http/internal/types"
 	"ad.com/pkg/exception"
+	"ad.com/pkg/repo/user"
 	"ad.com/pkg/shared"
 	"ad.com/pkg/util"
 
@@ -39,20 +40,31 @@ func (l *CodeValidateLogic) CodeValidate(req *types.CodeValidateReq) (resp *type
 		logx.Errorf("validate code err, current code: %s, target code: %s", req.Code, code)
 		return nil, &exception.CodeValidateFailed
 	}
-	user, err := l.svcCtx.UserModel.FindOneByMobile(l.ctx, req.Mobile)
+	var currentUser *user.User
+	currentUser, err = l.svcCtx.UserModel.FindOneByMobile(l.ctx, req.Mobile)
 	if err != nil {
-		logx.Errorf("find user by mobile failed, err: %v", err)
-		return nil, &exception.UserNotFound
+		// register this user when not exist
+		currentUser = &user.User{
+			CustomId:  util.GenCode(10, false),
+			Mobile:    req.Mobile,
+			Nickname:  req.Mobile,
+			CreatedAt: util.ConvertTime(time.Now()),
+		}
+		if _, err := l.svcCtx.UserModel.Insert(l.ctx, currentUser); err != nil {
+			logx.Errorf("insert user failed, err: %v", err)
+			return nil, &exception.UserRegisterFailed
+		}
+		currentUser, _ = l.svcCtx.UserModel.FindOneByMobile(l.ctx, req.Mobile)
 	}
 
 	resp = &types.UserResp{}
-	copier.Copy(resp, user)
-	resp.CreatedAt = user.CreatedAt.Time.Format(shared.TimeFormatTemplate)
-	resp.UpdatedAt = user.UpdatedAt.Time.Format(shared.TimeFormatTemplate)
-	resp.LastLoginAt = user.LastLoginAt.Time.Format(shared.TimeFormatTemplate)
+	copier.Copy(resp, currentUser)
+	resp.CreatedAt = currentUser.CreatedAt.Time.Format(shared.TimeFormatTemplate)
+	resp.UpdatedAt = currentUser.UpdatedAt.Time.Format(shared.TimeFormatTemplate)
+	resp.LastLoginAt = currentUser.LastLoginAt.Time.Format(shared.TimeFormatTemplate)
 
-	user.LastLoginAt = util.ConvertTime(time.Now())
-	if err := l.svcCtx.UserModel.Update(l.ctx, user); err != nil {
+	currentUser.LastLoginAt = util.ConvertTime(time.Now())
+	if err := l.svcCtx.UserModel.Update(l.ctx, currentUser); err != nil {
 		logx.Errorf("update user login time failed, err: %v", err)
 		return nil, &exception.UserLoginTimeUpdateFailed
 	}

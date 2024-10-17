@@ -156,6 +156,10 @@ type (
 		Category   CategoryResp `json:"category"`
 		User       UserResp     `json:"user"`
 	}
+	UserContactPagedResp {
+		PagedResp
+		Data []UserContactResp `json:"data"`
+	}
 )
 
 @server (
@@ -165,7 +169,7 @@ type (
 )
 service user-api {
 	@handler UserContactList
-	get / returns ([]UserContactResp)
+	get / (QueryListReq) returns (UserContactPagedResp)
 
 	@handler UserContactAdd
 	// id: dstId

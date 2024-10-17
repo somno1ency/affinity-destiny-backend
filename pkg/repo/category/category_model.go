@@ -54,7 +54,6 @@ func (m *customCategoryModel) Find(ctx context.Context, ownerId int64, req *type
 	}
 	offset := (req.Page - 1) * (req.PageSize)
 	var resp []*Category
-
 	query := fmt.Sprintf("select %s from %s where owner_id = ? order by %s %s limit ?,?", categoryRows, m.table, req.OrderField, asc)
 	err := m.conn.QueryRowsCtx(ctx, &resp, query, ownerId, offset, req.PageSize)
 

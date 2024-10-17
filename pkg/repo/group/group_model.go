@@ -54,7 +54,6 @@ func (m *customGroupModel) Find(ctx context.Context, ownerId int64, req *types.Q
 	}
 	offset := (req.Page - 1) * (req.PageSize)
 	var resp []*Group
-
 	query := fmt.Sprintf("select %s from %s where owner_id = ? order by %s %s limit ?,?", groupRows, m.table, req.OrderField, asc)
 	err := m.conn.QueryRowsCtx(ctx, &resp, query, ownerId, offset, req.PageSize)
 

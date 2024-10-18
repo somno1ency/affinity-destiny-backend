@@ -45,10 +45,10 @@ type (
 		UserNickname   string        `db:"UserNickname"`   // 群昵称
 		Remark         string        `db:"Remark"`         // 群备注
 		Background     string        `db:"Background"`     // 背景
-		IsDisturb      bool          `db:"IsDisturb"`      // 是否免打扰
-		IsTop          bool          `db:"IsTop"`          // 是否置顶
-		IsShowNickname bool          `db:"IsShowNickname"` // 是否显示群昵称
-		ApprovalStatus bool          `db:"ApprovalStatus"` // 审批状态
+		IsDisturb      int64         `db:"IsDisturb"`      // 是否免打扰
+		IsTop          int64         `db:"IsTop"`          // 是否置顶
+		IsShowNickname int64         `db:"IsShowNickname"` // 是否显示群昵称
+		ApprovalStatus int64         `db:"ApprovalStatus"` // 审批状态
 		ApprovalAt     sql.NullTime  `db:"ApprovalAt"`     // 审批时间
 		CreatedAt      sql.NullTime  `db:"CreatedAt"`      // 创建时间
 		UpdatedAt      sql.NullTime  `db:"UpdatedAt"`      // 更新时间

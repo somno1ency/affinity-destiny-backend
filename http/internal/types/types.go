@@ -67,9 +67,11 @@ type GroupContactResp struct {
 	UserNickname   string `json:"userNickname"`
 	Remark         string `json:"remark"`
 	Background     string `json:"background"`
-	IsDisturb      bool   `json:"isDisturb"`
-	IsTop          bool   `json:"isTop"`
-	IsShowNickname bool   `json:"isShowNickname"`
+	IsDisturb      int64  `json:"isDisturb"`
+	IsTop          int64  `json:"isTop"`
+	IsShowNickname int64  `json:"isShowNickname"`
+	ApprovalStatus int64  `json:"approvalStatus"`
+	ApprovalAt     string `json:"approvalAt"`
 	CreatedAt      string `json:"createdAt"`
 	UpdatedAt      string `json:"updatedAt"`
 	Category       struct {
@@ -233,17 +235,20 @@ type UserContactPagedResp struct {
 }
 
 type UserContactResp struct {
-	Id         int64  `json:"id"`
-	OwnerId    int64  `json:"ownerId"`
-	DstId      int64  `json:"dstId"`
-	CategoryId int64  `json:"categoryId"`
-	Background string `json:"background"`
-	IsDisturb  bool   `json:"isDisturb"`
-	IsTop      bool   `json:"isTop"`
-	IsRemind   bool   `json:"isRemind"`
-	CreatedAt  string `json:"createdAt"`
-	UpdatedAt  string `json:"updatedAt"`
-	Category   struct {
+	Id             int64  `json:"id"`
+	OwnerId        int64  `json:"ownerId"`
+	DstId          int64  `json:"dstId"`
+	CategoryId     int64  `json:"categoryId"`
+	Background     string `json:"background"`
+	IsDisturb      int64  `json:"isDisturb"`
+	IsTop          int64  `json:"isTop"`
+	IsRemind       int64  `json:"isRemind"`
+	IsInitiator    int64  `json:"isInitiator"`
+	ApprovalStatus int64  `json:"approvalStatus"`
+	ApprovalAt     string `json:"approvalAt"`
+	CreatedAt      string `json:"createdAt"`
+	UpdatedAt      string `json:"updatedAt"`
+	Category       struct {
 		Id        int64  `json:"id"`
 		OwnerId   int64  `json:"ownerId"`
 		NameZh    string `json:"nameZh"`

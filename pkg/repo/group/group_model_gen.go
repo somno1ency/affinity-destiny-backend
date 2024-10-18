@@ -45,7 +45,7 @@ type (
 		OwnerId    int64        `db:"OwnerId"`    // 群创建者ID
 		Avatar     string       `db:"Avatar"`     // 群头像
 		Memo       string       `db:"Memo"`       // 群备注
-		IsApproval bool         `db:"IsApproval"` // 是否需要审批
+		IsApproval int64        `db:"IsApproval"` // 是否需要审批
 		CreatedAt  sql.NullTime `db:"CreatedAt"`  // 创建时间
 		UpdatedAt  sql.NullTime `db:"UpdatedAt"`  // 更新时间
 	}

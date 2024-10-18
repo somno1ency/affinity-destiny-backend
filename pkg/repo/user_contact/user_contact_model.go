@@ -78,12 +78,12 @@ func (m *customUserContactModel) Count(ctx context.Context, ownerId int64) (int6
 }
 
 func (m *customUserContactModel) FindDstContact(ctx context.Context, ownerId int64, dstId int64) (*UserContact, error) {
-	resp := &UserContact{}
-	query := fmt.Sprintf("select %s from %s where OwnerId = ? and DstId = ?", userContactRows, m.table)
+	var resp UserContact
+	query := fmt.Sprintf("select %s from %s where OwnerId = ? and DstId = ? limit 1", userContactRows, m.table)
 	err := m.conn.QueryRowCtx(ctx, &resp, query, ownerId, dstId)
 	switch err {
 	case nil:
-		return resp, nil
+		return &resp, nil
 	default:
 		return nil, err
 	}

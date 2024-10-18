@@ -14,4 +14,5 @@ var (
 	CodeSendFailed       errors.CodeMsg = errors.CodeMsg{Code: 100_00_002, Msg: "验证码发送失败..."}
 	CodeValidateFailed   errors.CodeMsg = errors.CodeMsg{Code: 100_00_003, Msg: "验证码校验失败..."}
 	UnknownAscFieldError errors.CodeMsg = errors.CodeMsg{Code: 100_00_004, Msg: "排序字段不存在..."}
+	NoPermissionError    errors.CodeMsg = errors.CodeMsg{Code: 100_00_005, Msg: "没有权限执行..."}
 )

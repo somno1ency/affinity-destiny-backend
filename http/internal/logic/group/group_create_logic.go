@@ -38,7 +38,16 @@ func (l *GroupCreateLogic) GroupCreate(req *types.GroupCreateReq) error {
 	// TODO: set ownerId from token, assume ownerId = 1
 	var ownerId int64 = 1
 	group.OwnerId = ownerId
-	group.CustomId = util.GenCode(10, false)
+
+	var customId string
+	for {
+		customId = util.GenCode(10, false)
+		if _, err := l.svcCtx.GroupModel.FindOneByCustomId(l.ctx, customId); err != nil {
+			break
+		}
+		logx.Infof("duplicate customId: %s, try again", customId)
+	}
+	group.CustomId = customId
 	group.CreatedAt = util.ConvertTime(time.Now())
 	if _, err := l.svcCtx.GroupModel.Insert(l.ctx, group); err != nil {
 		logx.Errorf("insert group failed, err: %v", err)

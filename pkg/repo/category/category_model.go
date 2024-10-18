@@ -54,9 +54,8 @@ func (m *customCategoryModel) Find(ctx context.Context, ownerId int64, req *type
 	}
 	offset := (req.Page - 1) * (req.PageSize)
 	var resp []*Category
-	query := fmt.Sprintf("select %s from %s where owner_id = ? order by %s %s limit ?,?", categoryRows, m.table, req.OrderField, asc)
+	query := fmt.Sprintf("select %s from %s where OwnerId = ? order by %s %s limit ?,?", categoryRows, m.table, req.OrderField, asc)
 	err := m.conn.QueryRowsCtx(ctx, &resp, query, ownerId, offset, req.PageSize)
-
 	switch err {
 	case nil:
 		return resp, nil
@@ -67,9 +66,8 @@ func (m *customCategoryModel) Find(ctx context.Context, ownerId int64, req *type
 
 func (m *customCategoryModel) Count(ctx context.Context, ownerId int64) (int64, error) {
 	var count int64
-	query := fmt.Sprintf("select count(*) as num from %s where owner_id = ?", m.table)
+	query := fmt.Sprintf("select count(*) as Num from %s where OwnerId = ?", m.table)
 	err := m.conn.QueryRowPartialCtx(ctx, &count, query, ownerId)
-
 	switch err {
 	case nil:
 		return count, nil

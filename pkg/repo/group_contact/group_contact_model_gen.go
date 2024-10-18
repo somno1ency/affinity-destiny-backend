@@ -20,8 +20,8 @@ import (
 var (
 	groupContactFieldNames          = builder.RawFieldNames(&GroupContact{})
 	groupContactRows                = strings.Join(groupContactFieldNames, ",")
-	groupContactRowsExpectAutoSet   = strings.Join(stringx.Remove(groupContactFieldNames, "`id`"), ",")
-	groupContactRowsWithPlaceHolder = strings.Join(stringx.Remove(groupContactFieldNames, "`id`"), "=?,") + "=?"
+	groupContactRowsExpectAutoSet   = strings.Join(stringx.Remove(groupContactFieldNames, "`Id`"), ",")
+	groupContactRowsWithPlaceHolder = strings.Join(stringx.Remove(groupContactFieldNames, "`Id`"), "=?,") + "=?"
 )
 
 type (
@@ -38,36 +38,38 @@ type (
 	}
 
 	GroupContact struct {
-		Id             int64         `db:"id"`
-		GroupId        sql.NullInt64 `db:"group_id"`         // 群ID
-		UserId         sql.NullInt64 `db:"user_id"`          // 用户ID
-		CategoryId     int64         `db:"category_id"`      // 用户自定义分组ID
-		UserNickname   string        `db:"userNickname"`     // 群昵称
-		Remark         string        `db:"remark"`           // 群备注
-		Background     string        `db:"background"`       // 背景
-		IsDisturb      bool          `db:"is_disturb"`       // 是否免打扰
-		IsTop          bool          `db:"is_top"`           // 是否置顶
-		IsShowNickname bool          `db:"is_show_nickname"` // 是否显示群昵称
-		CreatedAt      sql.NullTime  `db:"created_at"`       // 创建时间
-		UpdatedAt      sql.NullTime  `db:"updated_at"`       // 更新时间
+		Id             int64         `db:"Id"`
+		GroupId        sql.NullInt64 `db:"GroupId"`        // 群ID
+		UserId         sql.NullInt64 `db:"UserId"`         // 用户ID
+		CategoryId     int64         `db:"CategoryId"`     // 用户自定义分组ID
+		UserNickname   string        `db:"UserNickname"`   // 群昵称
+		Remark         string        `db:"Remark"`         // 群备注
+		Background     string        `db:"Background"`     // 背景
+		IsDisturb      bool          `db:"IsDisturb"`      // 是否免打扰
+		IsTop          bool          `db:"IsTop"`          // 是否置顶
+		IsShowNickname bool          `db:"IsShowNickname"` // 是否显示群昵称
+		ApprovalStatus bool          `db:"ApprovalStatus"` // 审批状态
+		ApprovalAt     sql.NullTime  `db:"ApprovalAt"`     // 审批时间
+		CreatedAt      sql.NullTime  `db:"CreatedAt"`      // 创建时间
+		UpdatedAt      sql.NullTime  `db:"UpdatedAt"`      // 更新时间
 	}
 )
 
 func newGroupContactModel(conn sqlx.SqlConn) *defaultGroupContactModel {
 	return &defaultGroupContactModel{
 		conn:  conn,
-		table: "`group_contact`",
+		table: "`GroupContact`",
 	}
 }
 
 func (m *defaultGroupContactModel) Delete(ctx context.Context, id int64) error {
-	query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
+	query := fmt.Sprintf("delete from %s where `Id` = ?", m.table)
 	_, err := m.conn.ExecCtx(ctx, query, id)
 	return err
 }
 
 func (m *defaultGroupContactModel) FindOne(ctx context.Context, id int64) (*GroupContact, error) {
-	query := fmt.Sprintf("select %s from %s where `id` = ? limit 1", groupContactRows, m.table)
+	query := fmt.Sprintf("select %s from %s where `Id` = ? limit 1", groupContactRows, m.table)
 	var resp GroupContact
 	err := m.conn.QueryRowCtx(ctx, &resp, query, id)
 	switch err {
@@ -81,14 +83,14 @@ func (m *defaultGroupContactModel) FindOne(ctx context.Context, id int64) (*Grou
 }
 
 func (m *defaultGroupContactModel) Insert(ctx context.Context, data *GroupContact) (sql.Result, error) {
-	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, groupContactRowsExpectAutoSet)
-	ret, err := m.conn.ExecCtx(ctx, query, data.GroupId, data.UserId, data.CategoryId, data.UserNickname, data.Remark, data.Background, data.IsDisturb, data.IsTop, data.IsShowNickname, data.CreatedAt, data.UpdatedAt)
+	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, groupContactRowsExpectAutoSet)
+	ret, err := m.conn.ExecCtx(ctx, query, data.GroupId, data.UserId, data.CategoryId, data.UserNickname, data.Remark, data.Background, data.IsDisturb, data.IsTop, data.IsShowNickname, data.ApprovalStatus, data.ApprovalAt, data.CreatedAt, data.UpdatedAt)
 	return ret, err
 }
 
 func (m *defaultGroupContactModel) Update(ctx context.Context, data *GroupContact) error {
-	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, groupContactRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, data.GroupId, data.UserId, data.CategoryId, data.UserNickname, data.Remark, data.Background, data.IsDisturb, data.IsTop, data.IsShowNickname, data.CreatedAt, data.UpdatedAt, data.Id)
+	query := fmt.Sprintf("update %s set %s where `Id` = ?", m.table, groupContactRowsWithPlaceHolder)
+	_, err := m.conn.ExecCtx(ctx, query, data.GroupId, data.UserId, data.CategoryId, data.UserNickname, data.Remark, data.Background, data.IsDisturb, data.IsTop, data.IsShowNickname, data.ApprovalStatus, data.ApprovalAt, data.CreatedAt, data.UpdatedAt, data.Id)
 	return err
 }
 

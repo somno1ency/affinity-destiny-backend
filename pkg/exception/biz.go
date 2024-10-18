@@ -20,12 +20,13 @@ var (
 	UserLoginTimeUpdateFailed  errors.CodeMsg = errors.CodeMsg{Code: 101_01_004, Msg: "用户登录时间更新失败..."}
 	UserUpdateFailed           errors.CodeMsg = errors.CodeMsg{Code: 101_01_005, Msg: "用户信息更新失败..."}
 	UserRegisterFailed         errors.CodeMsg = errors.CodeMsg{Code: 101_01_006, Msg: "用户注册失败..."}
-	UserContactListQueryFailed errors.CodeMsg = errors.CodeMsg{Code: 101_02_007, Msg: "好友列表查询失败..."}
-	UserContactCountFailed     errors.CodeMsg = errors.CodeMsg{Code: 101_02_008, Msg: "好友数量查询失败..."}
+	UserContactListQueryFailed errors.CodeMsg = errors.CodeMsg{Code: 101_01_007, Msg: "好友列表查询失败..."}
+	UserContactCountFailed     errors.CodeMsg = errors.CodeMsg{Code: 101_01_008, Msg: "好友数量查询失败..."}
+	UserContactAlreadyExist    errors.CodeMsg = errors.CodeMsg{Code: 101_01_009, Msg: "该用户已经是您的好友..."}
 	// UserExists                 errors.CodeMsg = errors.CodeMsg{Code: 101_01_006, Msg: "用户已存在..."}
 	// UserNotMatch               errors.CodeMsg = errors.CodeMsg{Code: 101_01_007, Msg: "用户名或密码错误..."}
 	// UserAddSelfFailed          errors.CodeMsg = errors.CodeMsg{Code: 101_01_009, Msg: "不能添加自己为好友..."}
-	// UserAlreadyContact         errors.CodeMsg = errors.CodeMsg{Code: 101_01_010, Msg: "您已经是该用户的好友..."}
+
 	// UserAddFailed              errors.CodeMsg = errors.CodeMsg{Code: 101_01_011, Msg: "好友添加失败..."}
 
 	GroupCreateFailed        errors.CodeMsg = errors.CodeMsg{Code: 101_02_001, Msg: "群创建失败..."}

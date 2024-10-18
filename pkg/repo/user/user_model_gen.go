@@ -20,8 +20,8 @@ import (
 var (
 	userFieldNames          = builder.RawFieldNames(&User{})
 	userRows                = strings.Join(userFieldNames, ",")
-	userRowsExpectAutoSet   = strings.Join(stringx.Remove(userFieldNames, "`id`"), ",")
-	userRowsWithPlaceHolder = strings.Join(stringx.Remove(userFieldNames, "`id`"), "=?,") + "=?"
+	userRowsExpectAutoSet   = strings.Join(stringx.Remove(userFieldNames, "`Id`"), ",")
+	userRowsWithPlaceHolder = strings.Join(stringx.Remove(userFieldNames, "`Id`"), "=?,") + "=?"
 )
 
 type (
@@ -39,36 +39,36 @@ type (
 	}
 
 	User struct {
-		Id          int64        `db:"id"`
-		CustomId    string       `db:"custom_id"`     // 自定义ID
-		Mobile      string       `db:"mobile"`        // 手机
-		Password    string       `db:"password"`      // 密码
-		Nickname    string       `db:"nickname"`      // 昵称
-		Avatar      string       `db:"avatar"`        // 头像
-		Sex         int64        `db:"sex"`           // 性别(0:未设置 1:男 2:女)
-		Memo        string       `db:"memo"`          // 备注
-		Salt        string       `db:"salt"`          // 盐值
-		CreatedAt   sql.NullTime `db:"created_at"`    // 创建时间
-		UpdatedAt   sql.NullTime `db:"updated_at"`    // 更新时间
-		LastLoginAt sql.NullTime `db:"last_login_at"` // 最后登录时间
+		Id          int64        `db:"Id"`
+		CustomId    string       `db:"CustomId"`    // 自定义ID
+		Mobile      string       `db:"Mobile"`      // 手机
+		Password    string       `db:"Password"`    // 密码
+		Nickname    string       `db:"Nickname"`    // 昵称
+		Avatar      string       `db:"Avatar"`      // 头像
+		Sex         int64        `db:"Sex"`         // 性别(0:未设置 1:男 2:女)
+		Memo        string       `db:"Memo"`        // 备注
+		Salt        string       `db:"Salt"`        // 盐值
+		CreatedAt   sql.NullTime `db:"CreatedAt"`   // 创建时间
+		UpdatedAt   sql.NullTime `db:"UpdatedAt"`   // 更新时间
+		LastLoginAt sql.NullTime `db:"LastLoginAt"` // 最后登录时间
 	}
 )
 
 func newUserModel(conn sqlx.SqlConn) *defaultUserModel {
 	return &defaultUserModel{
 		conn:  conn,
-		table: "`user`",
+		table: "`User`",
 	}
 }
 
 func (m *defaultUserModel) Delete(ctx context.Context, id int64) error {
-	query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
+	query := fmt.Sprintf("delete from %s where `Id` = ?", m.table)
 	_, err := m.conn.ExecCtx(ctx, query, id)
 	return err
 }
 
 func (m *defaultUserModel) FindOne(ctx context.Context, id int64) (*User, error) {
-	query := fmt.Sprintf("select %s from %s where `id` = ? limit 1", userRows, m.table)
+	query := fmt.Sprintf("select %s from %s where `Id` = ? limit 1", userRows, m.table)
 	var resp User
 	err := m.conn.QueryRowCtx(ctx, &resp, query, id)
 	switch err {
@@ -83,7 +83,7 @@ func (m *defaultUserModel) FindOne(ctx context.Context, id int64) (*User, error)
 
 func (m *defaultUserModel) FindOneByMobile(ctx context.Context, mobile string) (*User, error) {
 	var resp User
-	query := fmt.Sprintf("select %s from %s where `mobile` = ? limit 1", userRows, m.table)
+	query := fmt.Sprintf("select %s from %s where `Mobile` = ? limit 1", userRows, m.table)
 	err := m.conn.QueryRowCtx(ctx, &resp, query, mobile)
 	switch err {
 	case nil:
@@ -102,7 +102,7 @@ func (m *defaultUserModel) Insert(ctx context.Context, data *User) (sql.Result, 
 }
 
 func (m *defaultUserModel) Update(ctx context.Context, newData *User) error {
-	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, userRowsWithPlaceHolder)
+	query := fmt.Sprintf("update %s set %s where `Id` = ?", m.table, userRowsWithPlaceHolder)
 	_, err := m.conn.ExecCtx(ctx, query, newData.CustomId, newData.Mobile, newData.Password, newData.Nickname, newData.Avatar, newData.Sex, newData.Memo, newData.Salt, newData.CreatedAt, newData.UpdatedAt, newData.LastLoginAt, newData.Id)
 	return err
 }

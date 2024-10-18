@@ -25,6 +25,7 @@ type (
 
 		Find(ctx context.Context, ownerId int64, req *types.QueryListReq) ([]*Group, error)
 		Count(ctx context.Context, ownerId int64) (int64, error)
+		FindOneByCustomId(ctx context.Context, customId string) (*Group, error)
 	}
 
 	customGroupModel struct {
@@ -54,9 +55,8 @@ func (m *customGroupModel) Find(ctx context.Context, ownerId int64, req *types.Q
 	}
 	offset := (req.Page - 1) * (req.PageSize)
 	var resp []*Group
-	query := fmt.Sprintf("select %s from %s where owner_id = ? order by %s %s limit ?,?", groupRows, m.table, req.OrderField, asc)
+	query := fmt.Sprintf("select %s from %s where OwnerId = ? order by %s %s limit ?,?", groupRows, m.table, req.OrderField, asc)
 	err := m.conn.QueryRowsCtx(ctx, &resp, query, ownerId, offset, req.PageSize)
-
 	switch err {
 	case nil:
 		return resp, nil
@@ -67,13 +67,26 @@ func (m *customGroupModel) Find(ctx context.Context, ownerId int64, req *types.Q
 
 func (m *customGroupModel) Count(ctx context.Context, ownerId int64) (int64, error) {
 	var count int64
-	query := fmt.Sprintf("select count(*) as num from %s where owner_id = ?", m.table)
+	query := fmt.Sprintf("select count(*) as Num from %s where OwnerId = ?", m.table)
 	err := m.conn.QueryRowPartialCtx(ctx, &count, query, ownerId)
-
 	switch err {
 	case nil:
 		return count, nil
 	default:
 		return -1, err
+	}
+}
+
+func (m *customGroupModel) FindOneByCustomId(ctx context.Context, customId string) (*Group, error) {
+	var resp Group
+	query := fmt.Sprintf("select %s from %s where `CustomId` = ? limit 1", groupRows, m.table)
+	err := m.conn.QueryRowCtx(ctx, &resp, query, customId)
+	switch err {
+	case nil:
+		return &resp, nil
+	case sqlx.ErrNotFound:
+		return nil, ErrNotFound
+	default:
+		return nil, err
 	}
 }

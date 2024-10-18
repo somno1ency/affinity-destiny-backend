@@ -25,6 +25,7 @@ type (
 
 		Find(ctx context.Context, ownerId int64, req *types.QueryListReq) ([]*UserContact, error)
 		Count(ctx context.Context, ownerId int64) (int64, error)
+		FindDstContact(ctx context.Context, ownerId int64, dstId int64) (*UserContact, error)
 	}
 
 	customUserContactModel struct {
@@ -54,9 +55,8 @@ func (m *customUserContactModel) Find(ctx context.Context, ownerId int64, req *t
 	}
 	offset := (req.Page - 1) * (req.PageSize)
 	var resp []*UserContact
-	query := fmt.Sprintf("select %s from %s where owner_id = ? order by %s %s limit ?,?", userContactRows, m.table, req.OrderField, asc)
+	query := fmt.Sprintf("select %s from %s where OwnerId = ? order by %s %s limit ?,?", userContactRows, m.table, req.OrderField, asc)
 	err := m.conn.QueryRowsCtx(ctx, &resp, query, ownerId, offset, req.PageSize)
-
 	switch err {
 	case nil:
 		return resp, nil
@@ -67,13 +67,24 @@ func (m *customUserContactModel) Find(ctx context.Context, ownerId int64, req *t
 
 func (m *customUserContactModel) Count(ctx context.Context, ownerId int64) (int64, error) {
 	var count int64
-	query := fmt.Sprintf("select count(*) as num from %s where owner_id = ?", m.table)
+	query := fmt.Sprintf("select count(*) as Num from %s where OwnerId = ?", m.table)
 	err := m.conn.QueryRowPartialCtx(ctx, &count, query, ownerId)
-
 	switch err {
 	case nil:
 		return count, nil
 	default:
 		return -1, err
+	}
+}
+
+func (m *customUserContactModel) FindDstContact(ctx context.Context, ownerId int64, dstId int64) (*UserContact, error) {
+	resp := &UserContact{}
+	query := fmt.Sprintf("select %s from %s where OwnerId = ? and DstId = ?", userContactRows, m.table)
+	err := m.conn.QueryRowCtx(ctx, &resp, query, ownerId, dstId)
+	switch err {
+	case nil:
+		return resp, nil
+	default:
+		return nil, err
 	}
 }

@@ -9,7 +9,8 @@ Port: 8888
 Timeout: 100_000_000
 
 DataSource:
-  Mysql: affinity_destiny:5b6ff4ef@tcp(mysql.sqlask.com:3306)/affinity_destiny?charset=utf8mb4&parseTime=True&loc=Local
+  Mysql: AffinityDestiny:24c4fcdf@tcp(mysql.sqlask.com:3306)/AffinityDestiny?charset=utf8mb4&parseTime=True&loc=Local
+  # Mysql: affinity_destiny:5b6ff4ef@tcp(mysql.sqlask.com:3306)/affinity_destiny?charset=utf8mb4&parseTime=True&loc=Local
 
 RedisConf:
   Host: 127.0.0.1:6379

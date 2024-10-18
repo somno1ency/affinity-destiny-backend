@@ -44,8 +44,16 @@ func (l *CodeValidateLogic) CodeValidate(req *types.CodeValidateReq) (resp *type
 	currentUser, err = l.svcCtx.UserModel.FindOneByMobile(l.ctx, req.Mobile)
 	if err != nil {
 		// register this user when not exist
+		var customId string
+		for {
+			customId = util.GenCode(10, false)
+			if _, err := l.svcCtx.UserModel.FindOneByCustomId(l.ctx, customId); err != nil {
+				break
+			}
+			logx.Infof("duplicate customId: %s, try again", customId)
+		}
 		currentUser = &user.User{
-			CustomId:  util.GenCode(10, false),
+			CustomId:  customId,
 			Mobile:    req.Mobile,
 			Nickname:  req.Mobile,
 			CreatedAt: util.ConvertTime(time.Now()),
@@ -68,6 +76,8 @@ func (l *CodeValidateLogic) CodeValidate(req *types.CodeValidateReq) (resp *type
 		logx.Errorf("update user login time failed, err: %v", err)
 		return nil, &exception.UserLoginTimeUpdateFailed
 	}
+
+	l.svcCtx.RdsClient.Del(fmt.Sprintf(shared.CodeSendToPhone, req.Mobile))
 
 	return resp, nil
 }

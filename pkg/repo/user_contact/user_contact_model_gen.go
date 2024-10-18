@@ -20,8 +20,8 @@ import (
 var (
 	userContactFieldNames          = builder.RawFieldNames(&UserContact{})
 	userContactRows                = strings.Join(userContactFieldNames, ",")
-	userContactRowsExpectAutoSet   = strings.Join(stringx.Remove(userContactFieldNames, "`id`"), ",")
-	userContactRowsWithPlaceHolder = strings.Join(stringx.Remove(userContactFieldNames, "`id`"), "=?,") + "=?"
+	userContactRowsExpectAutoSet   = strings.Join(stringx.Remove(userContactFieldNames, "`Id`"), ",")
+	userContactRowsWithPlaceHolder = strings.Join(stringx.Remove(userContactFieldNames, "`Id`"), "=?,") + "=?"
 )
 
 type (
@@ -38,34 +38,36 @@ type (
 	}
 
 	UserContact struct {
-		Id         int64        `db:"id"`
-		OwnerId    int64        `db:"owner_id"`    // 所有者用户ID
-		DstId      int64        `db:"dst_id"`      // 目标用户ID
-		CategoryId int64        `db:"category_id"` // 用户自定义分组ID
-		Background string       `db:"background"`  // 背景
-		IsDisturb  bool         `db:"is_disturb"`  // 是否免打扰
-		IsTop      bool         `db:"is_top"`      // 是否置顶
-		IsRemind   bool         `db:"isRemind"`    // 是否提醒
-		CreatedAt  sql.NullTime `db:"created_at"`  // 创建时间
-		UpdatedAt  sql.NullTime `db:"updated_at"`  // 更新时间
+		Id             int64        `db:"Id"`
+		OwnerId        int64        `db:"OwnerId"`        // 所有者用户ID
+		DstId          int64        `db:"DstId"`          // 目标用户ID
+		CategoryId     int64        `db:"CategoryId"`     // 用户自定义分组ID
+		Background     string       `db:"Background"`     // 背景
+		IsDisturb      bool         `db:"IsDisturb"`      // 是否免打扰
+		IsTop          bool         `db:"IsTop"`          // 是否置顶
+		IsRemind       bool         `db:"IsRemind"`       // 是否提醒
+		ApprovalStatus bool         `db:"ApprovalStatus"` // 审批状态
+		ApprovalAt     sql.NullTime `db:"ApprovalAt"`     // 审批时间
+		CreatedAt      sql.NullTime `db:"CreatedAt"`      // 创建时间
+		UpdatedAt      sql.NullTime `db:"UpdatedAt"`      // 更新时间
 	}
 )
 
 func newUserContactModel(conn sqlx.SqlConn) *defaultUserContactModel {
 	return &defaultUserContactModel{
 		conn:  conn,
-		table: "`user_contact`",
+		table: "`UserContact`",
 	}
 }
 
 func (m *defaultUserContactModel) Delete(ctx context.Context, id int64) error {
-	query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
+	query := fmt.Sprintf("delete from %s where `Id` = ?", m.table)
 	_, err := m.conn.ExecCtx(ctx, query, id)
 	return err
 }
 
 func (m *defaultUserContactModel) FindOne(ctx context.Context, id int64) (*UserContact, error) {
-	query := fmt.Sprintf("select %s from %s where `id` = ? limit 1", userContactRows, m.table)
+	query := fmt.Sprintf("select %s from %s where `Id` = ? limit 1", userContactRows, m.table)
 	var resp UserContact
 	err := m.conn.QueryRowCtx(ctx, &resp, query, id)
 	switch err {
@@ -79,14 +81,14 @@ func (m *defaultUserContactModel) FindOne(ctx context.Context, id int64) (*UserC
 }
 
 func (m *defaultUserContactModel) Insert(ctx context.Context, data *UserContact) (sql.Result, error) {
-	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, userContactRowsExpectAutoSet)
-	ret, err := m.conn.ExecCtx(ctx, query, data.OwnerId, data.DstId, data.CategoryId, data.Background, data.IsDisturb, data.IsTop, data.IsRemind, data.CreatedAt, data.UpdatedAt)
+	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, userContactRowsExpectAutoSet)
+	ret, err := m.conn.ExecCtx(ctx, query, data.OwnerId, data.DstId, data.CategoryId, data.Background, data.IsDisturb, data.IsTop, data.IsRemind, data.ApprovalStatus, data.ApprovalAt, data.CreatedAt, data.UpdatedAt)
 	return ret, err
 }
 
 func (m *defaultUserContactModel) Update(ctx context.Context, data *UserContact) error {
-	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, userContactRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, data.OwnerId, data.DstId, data.CategoryId, data.Background, data.IsDisturb, data.IsTop, data.IsRemind, data.CreatedAt, data.UpdatedAt, data.Id)
+	query := fmt.Sprintf("update %s set %s where `Id` = ?", m.table, userContactRowsWithPlaceHolder)
+	_, err := m.conn.ExecCtx(ctx, query, data.OwnerId, data.DstId, data.CategoryId, data.Background, data.IsDisturb, data.IsTop, data.IsRemind, data.ApprovalStatus, data.ApprovalAt, data.CreatedAt, data.UpdatedAt, data.Id)
 	return err
 }
 

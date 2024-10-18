@@ -61,10 +61,9 @@ func (m *customResourceModel) Find(ctx context.Context, resourceType int64, req 
 		query = fmt.Sprintf("select %s from %s order by %s %s limit ?,?", resourceRows, m.table, req.OrderField, asc)
 		err = m.conn.QueryRowsCtx(ctx, &resp, query, offset, req.PageSize)
 	} else {
-		query = fmt.Sprintf("select %s from %s where type = ? order by %s %s limit ?,?", resourceRows, m.table, req.OrderField, asc)
+		query = fmt.Sprintf("select %s from %s where Type = ? order by %s %s limit ?,?", resourceRows, m.table, req.OrderField, asc)
 		err = m.conn.QueryRowsCtx(ctx, &resp, query, resourceType, offset, req.PageSize)
 	}
-
 	switch err {
 	case nil:
 		return resp, nil
@@ -78,13 +77,12 @@ func (m *customResourceModel) Count(ctx context.Context, resourceType int64) (in
 	var count int64
 	var err error
 	if resourceType == 0 {
-		query = fmt.Sprintf("select count(*) as num from %s", m.table)
+		query = fmt.Sprintf("select count(*) as Num from %s", m.table)
 		err = m.conn.QueryRowPartialCtx(ctx, &count, query)
 	} else {
-		query = fmt.Sprintf("select count(*) as num from %s where type = ?", m.table)
+		query = fmt.Sprintf("select count(*) as Num from %s where Type = ?", m.table)
 		err = m.conn.QueryRowPartialCtx(ctx, &count, query, resourceType)
 	}
-
 	switch err {
 	case nil:
 		return count, nil

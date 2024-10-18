@@ -20,8 +20,8 @@ import (
 var (
 	resourceFieldNames          = builder.RawFieldNames(&Resource{})
 	resourceRows                = strings.Join(resourceFieldNames, ",")
-	resourceRowsExpectAutoSet   = strings.Join(stringx.Remove(resourceFieldNames, "`id`"), ",")
-	resourceRowsWithPlaceHolder = strings.Join(stringx.Remove(resourceFieldNames, "`id`"), "=?,") + "=?"
+	resourceRowsExpectAutoSet   = strings.Join(stringx.Remove(resourceFieldNames, "`Id`"), ",")
+	resourceRowsWithPlaceHolder = strings.Join(stringx.Remove(resourceFieldNames, "`Id`"), "=?,") + "=?"
 )
 
 type (
@@ -38,31 +38,31 @@ type (
 	}
 
 	Resource struct {
-		Id        int64        `db:"id"`
-		Src       string       `db:"src"`        // 资源地址
-		Type      int64        `db:"type"`       // 资源类型
-		NameZh    string       `db:"name_zh"`    // 资源中文名称
-		NameEn    string       `db:"name_en"`    // 资源英文名称
-		CreatedAt sql.NullTime `db:"created_at"` // 创建时间
-		UpdatedAt sql.NullTime `db:"updated_at"` // 更新时间
+		Id        int64        `db:"Id"`
+		Src       string       `db:"Src"`       // 资源地址
+		Type      int64        `db:"Type"`      // 资源类型
+		NameZh    string       `db:"NameZh"`    // 资源中文名称
+		NameEn    string       `db:"NameEn"`    // 资源英文名称
+		CreatedAt sql.NullTime `db:"CreatedAt"` // 创建时间
+		UpdatedAt sql.NullTime `db:"UpdatedAt"` // 更新时间
 	}
 )
 
 func newResourceModel(conn sqlx.SqlConn) *defaultResourceModel {
 	return &defaultResourceModel{
 		conn:  conn,
-		table: "`resource`",
+		table: "`Resource`",
 	}
 }
 
 func (m *defaultResourceModel) Delete(ctx context.Context, id int64) error {
-	query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
+	query := fmt.Sprintf("delete from %s where `Id` = ?", m.table)
 	_, err := m.conn.ExecCtx(ctx, query, id)
 	return err
 }
 
 func (m *defaultResourceModel) FindOne(ctx context.Context, id int64) (*Resource, error) {
-	query := fmt.Sprintf("select %s from %s where `id` = ? limit 1", resourceRows, m.table)
+	query := fmt.Sprintf("select %s from %s where `Id` = ? limit 1", resourceRows, m.table)
 	var resp Resource
 	err := m.conn.QueryRowCtx(ctx, &resp, query, id)
 	switch err {
@@ -82,7 +82,7 @@ func (m *defaultResourceModel) Insert(ctx context.Context, data *Resource) (sql.
 }
 
 func (m *defaultResourceModel) Update(ctx context.Context, data *Resource) error {
-	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, resourceRowsWithPlaceHolder)
+	query := fmt.Sprintf("update %s set %s where `Id` = ?", m.table, resourceRowsWithPlaceHolder)
 	_, err := m.conn.ExecCtx(ctx, query, data.Src, data.Type, data.NameZh, data.NameEn, data.CreatedAt, data.UpdatedAt, data.Id)
 	return err
 }

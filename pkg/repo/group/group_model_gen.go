@@ -20,8 +20,8 @@ import (
 var (
 	groupFieldNames          = builder.RawFieldNames(&Group{})
 	groupRows                = strings.Join(groupFieldNames, ",")
-	groupRowsExpectAutoSet   = strings.Join(stringx.Remove(groupFieldNames, "`id`"), ",")
-	groupRowsWithPlaceHolder = strings.Join(stringx.Remove(groupFieldNames, "`id`"), "=?,") + "=?"
+	groupRowsExpectAutoSet   = strings.Join(stringx.Remove(groupFieldNames, "`Id`"), ",")
+	groupRowsWithPlaceHolder = strings.Join(stringx.Remove(groupFieldNames, "`Id`"), "=?,") + "=?"
 )
 
 type (
@@ -39,32 +39,33 @@ type (
 	}
 
 	Group struct {
-		Id        int64        `db:"id"`
-		CustomId  string       `db:"custom_id"`  // 群标识
-		Name      string       `db:"name"`       // 群名称
-		OwnerId   int64        `db:"owner_id"`   // 群创建者ID
-		Avatar    string       `db:"avatar"`     // 群头像
-		Memo      string       `db:"memo"`       // 群备注
-		CreatedAt sql.NullTime `db:"created_at"` // 创建时间
-		UpdatedAt sql.NullTime `db:"updated_at"` // 更新时间
+		Id         int64        `db:"Id"`
+		CustomId   string       `db:"CustomId"`   // 群标识
+		Name       string       `db:"Name"`       // 群名称
+		OwnerId    int64        `db:"OwnerId"`    // 群创建者ID
+		Avatar     string       `db:"Avatar"`     // 群头像
+		Memo       string       `db:"Memo"`       // 群备注
+		IsApproval bool         `db:"IsApproval"` // 是否需要审批
+		CreatedAt  sql.NullTime `db:"CreatedAt"`  // 创建时间
+		UpdatedAt  sql.NullTime `db:"UpdatedAt"`  // 更新时间
 	}
 )
 
 func newGroupModel(conn sqlx.SqlConn) *defaultGroupModel {
 	return &defaultGroupModel{
 		conn:  conn,
-		table: "`group`",
+		table: "`Group`",
 	}
 }
 
 func (m *defaultGroupModel) Delete(ctx context.Context, id int64) error {
-	query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
+	query := fmt.Sprintf("delete from %s where `Id` = ?", m.table)
 	_, err := m.conn.ExecCtx(ctx, query, id)
 	return err
 }
 
 func (m *defaultGroupModel) FindOne(ctx context.Context, id int64) (*Group, error) {
-	query := fmt.Sprintf("select %s from %s where `id` = ? limit 1", groupRows, m.table)
+	query := fmt.Sprintf("select %s from %s where `Id` = ? limit 1", groupRows, m.table)
 	var resp Group
 	err := m.conn.QueryRowCtx(ctx, &resp, query, id)
 	switch err {
@@ -79,7 +80,7 @@ func (m *defaultGroupModel) FindOne(ctx context.Context, id int64) (*Group, erro
 
 func (m *defaultGroupModel) FindOneByName(ctx context.Context, name string) (*Group, error) {
 	var resp Group
-	query := fmt.Sprintf("select %s from %s where `name` = ? limit 1", groupRows, m.table)
+	query := fmt.Sprintf("select %s from %s where `Name` = ? limit 1", groupRows, m.table)
 	err := m.conn.QueryRowCtx(ctx, &resp, query, name)
 	switch err {
 	case nil:
@@ -92,14 +93,14 @@ func (m *defaultGroupModel) FindOneByName(ctx context.Context, name string) (*Gr
 }
 
 func (m *defaultGroupModel) Insert(ctx context.Context, data *Group) (sql.Result, error) {
-	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?)", m.table, groupRowsExpectAutoSet)
-	ret, err := m.conn.ExecCtx(ctx, query, data.CustomId, data.Name, data.OwnerId, data.Avatar, data.Memo, data.CreatedAt, data.UpdatedAt)
+	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?)", m.table, groupRowsExpectAutoSet)
+	ret, err := m.conn.ExecCtx(ctx, query, data.CustomId, data.Name, data.OwnerId, data.Avatar, data.Memo, data.IsApproval, data.CreatedAt, data.UpdatedAt)
 	return ret, err
 }
 
 func (m *defaultGroupModel) Update(ctx context.Context, newData *Group) error {
-	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, groupRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, newData.CustomId, newData.Name, newData.OwnerId, newData.Avatar, newData.Memo, newData.CreatedAt, newData.UpdatedAt, newData.Id)
+	query := fmt.Sprintf("update %s set %s where `Id` = ?", m.table, groupRowsWithPlaceHolder)
+	_, err := m.conn.ExecCtx(ctx, query, newData.CustomId, newData.Name, newData.OwnerId, newData.Avatar, newData.Memo, newData.IsApproval, newData.CreatedAt, newData.UpdatedAt, newData.Id)
 	return err
 }
 

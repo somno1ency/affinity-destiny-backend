@@ -9,6 +9,7 @@ import (
 
 	"ad.com/http/internal/svc"
 	"ad.com/http/internal/types"
+	"ad.com/pkg/exception"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -28,7 +29,17 @@ func NewGroupContactLeaveLogic(ctx context.Context, svcCtx *svc.ServiceContext) 
 }
 
 func (l *GroupContactLeaveLogic) GroupContactLeave(req *types.GroupIdReq) error {
-	// todo: add your logic here and delete this line
+	// TODO: assume operate for user 1
+	var ownerId int64 = 1
+	groupContact, err := l.svcCtx.GroupContactModel.FindByUserId(l.ctx, req.GroupId, ownerId)
+	if err != nil {
+		logx.Errorf("find group contact failed, err: %v", err)
+		return &exception.GroupContactNotFound
+	}
+	if err := l.svcCtx.GroupContactModel.Delete(l.ctx, groupContact.Id); err != nil {
+		logx.Errorf("delete group contact failed, err: %v", err)
+		return &exception.GroupContactDeleteFailed
+	}
 
 	return nil
 }

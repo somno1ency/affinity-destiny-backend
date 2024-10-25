@@ -46,9 +46,9 @@ var (
 	GroupContactNotFound        errors.CodeMsg = errors.CodeMsg{Code: 101_02_012, Msg: "群成员不存在..."}
 	GroupContactUpdateFailed    errors.CodeMsg = errors.CodeMsg{Code: 101_02_013, Msg: "群成员信息更新失败..."}
 	GroupContactListQueryFailed errors.CodeMsg = errors.CodeMsg{Code: 101_02_014, Msg: "群成员列表查询失败..."}
-	// GroupExists              errors.CodeMsg = errors.CodeMsg{Code: 101_02_009, Msg: "群已存在..."}
-	// GroupAlreadyIn           errors.CodeMsg = errors.CodeMsg{Code: 101_02_010, Msg: "您已经是该群成员..."}
-	// GroupJoinFailed          errors.CodeMsg = errors.CodeMsg{Code: 101_02_011, Msg: "加入群失败..."}
+	GroupContactDeleteFailed    errors.CodeMsg = errors.CodeMsg{Code: 101_02_015, Msg: "群成员删除失败..."}
+	GroupContactAlreadyExists   errors.CodeMsg = errors.CodeMsg{Code: 101_02_016, Msg: "群成员已存在..."}
+	GroupContactJoinFailed      errors.CodeMsg = errors.CodeMsg{Code: 101_02_017, Msg: "加入群失败..."}
 
 	CategoryCreateFailed    errors.CodeMsg = errors.CodeMsg{Code: 101_03_001, Msg: "分组创建失败..."}
 	CategoryDeleteFailed    errors.CodeMsg = errors.CodeMsg{Code: 101_03_002, Msg: "分组删除失败..."}

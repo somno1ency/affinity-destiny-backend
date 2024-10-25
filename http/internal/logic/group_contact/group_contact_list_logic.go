@@ -9,7 +9,12 @@ import (
 
 	"ad.com/http/internal/svc"
 	"ad.com/http/internal/types"
+	"ad.com/pkg/exception"
+	"ad.com/pkg/repo/group_contact"
+	"ad.com/pkg/shared"
+	"ad.com/pkg/util"
 
+	"github.com/jinzhu/copier"
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -28,7 +33,48 @@ func NewGroupContactListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *
 }
 
 func (l *GroupContactListLogic) GroupContactList(req *types.GroupIdReq) (resp []types.GroupContactResp, err error) {
-	// todo: add your logic here and delete this line
+	groupContacts, err := l.svcCtx.GroupContactModel.Find(l.ctx, req.GroupId)
+	if err != nil {
+		logx.Errorf("find group contact list failed, err: %v", err)
+		return nil, &exception.GroupContactListQueryFailed
+	}
+	groupContactsResp := util.TransformList(groupContacts, toResp)
+	for i, groupContactResp := range groupContactsResp {
+		var categoryResp = &types.CategoryResp{}
+		if category, err := l.svcCtx.CategoryModel.FindOne(l.ctx, groupContactResp.CategoryId); err == nil {
+			copier.Copy(categoryResp, category)
+		}
+		var userResp = &types.UserResp{}
+		if user, err := l.svcCtx.UserModel.FindOne(l.ctx, groupContactResp.UserId); err == nil {
+			copier.Copy(userResp, user)
+		}
+		var groupResp = &types.GroupResp{}
+		if group, err := l.svcCtx.UserModel.FindOne(l.ctx, groupContactResp.GroupId); err == nil {
+			copier.Copy(groupResp, group)
+		}
+		groupContactsResp[i].Category = *categoryResp
+		groupContactsResp[i].User = *userResp
+		groupContactsResp[i].Group = *groupResp
+	}
 
-	return
+	return groupContactsResp, nil
+}
+
+func toResp(data *group_contact.GroupContact) types.GroupContactResp {
+	return types.GroupContactResp{
+		Id:             data.Id,
+		GroupId:        data.GroupId.Int64,
+		UserId:         data.UserId.Int64,
+		CategoryId:     data.CategoryId,
+		UserNickname:   data.UserNickname,
+		Remark:         data.Remark,
+		Background:     data.Background,
+		IsDisturb:      data.IsDisturb,
+		IsTop:          data.IsTop,
+		IsShowNickname: data.IsShowNickname,
+		ApprovalStatus: data.ApprovalStatus,
+		ApprovalAt:     data.ApprovalAt.Time.Format(shared.TimeFormatTemplate),
+		CreatedAt:      data.CreatedAt.Time.Format(shared.TimeFormatTemplate),
+		UpdatedAt:      data.UpdatedAt.Time.Format(shared.TimeFormatTemplate),
+	}
 }

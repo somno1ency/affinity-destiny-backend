@@ -178,6 +178,7 @@ service user-api {
 	// id: dstId
 	post /:id (PathIdReq)
 
+	// id: dstId
 	@handler UserContactDelete
 	delete /:id (PathIdReq)
 
@@ -314,9 +315,6 @@ service user-api {
 	// leave target group operated by user(retrieve userId from token)
 	@handler GroupContactLeave
 	post /:groupId/leave (GroupIdReq)
-
-	@handler GroupContactDelete
-	delete /:id (PathIdReq)
 
 	@handler GroupContactCategorySet
 	post /:id/category (UserContactCategorySetReq)

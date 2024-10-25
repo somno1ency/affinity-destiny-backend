@@ -16,6 +16,7 @@ import (
 
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
+	"github.com/zeromicro/x/errors"
 )
 
 type UserContactAddLogic struct {
@@ -43,8 +44,45 @@ func (l *UserContactAddLogic) UserContactAdd(req *types.PathIdReq) error {
 	if ownerId == user.Id {
 		return &exception.UserContactAddSelfFailed
 	}
-	if _, err := l.svcCtx.UserContactModel.FindDstContact(l.ctx, ownerId, req.Id); err == nil {
-		return &exception.UserContactAlreadyExist
+	if toTarget, err := l.svcCtx.UserContactModel.FindDstContact(l.ctx, ownerId, req.Id); err == nil {
+		switch toTarget.ApprovalStatus {
+		case 0:
+			// wait for process
+			if toTarget.IsInitiator == 1 {
+				// invite by self, target don't process
+				return &exception.UserContactSelfInvite
+			} else {
+				// invite by target, self don't process
+				return &exception.UserContactTargetInvite
+			}
+		case 10:
+			// already process
+			// no matter who invite, they are already friends
+			return &exception.UserContactAlreadyExist
+		case 20:
+			// denied
+			// no matter who denied, they can re-invite, so make ReApply = 1 of the two records
+			toSelf, err := l.svcCtx.UserContactModel.FindDstContact(l.ctx, req.Id, ownerId)
+			if err != nil {
+				logx.Errorf("find toSelf contact failed, err: %v", err)
+				return errors.New(exception.UnknownError.Code, err.Error())
+			}
+
+			toTarget.ReApply = 1
+			toTarget.UpdatedAt = util.ConvertTime(time.Now())
+			toSelf.ReApply = 1
+			toSelf.UpdatedAt = util.ConvertTime(time.Now())
+			l.svcCtx.Conn.TransactCtx(l.ctx, func(ctx context.Context, session sqlx.Session) error {
+				if err := l.svcCtx.UserContactModel.Update(ctx, toTarget); err != nil {
+					return &exception.UserContactUpdateFailed
+				}
+				if err := l.svcCtx.UserContactModel.Update(ctx, toSelf); err != nil {
+					return &exception.UserContactUpdateFailed
+				}
+
+				return nil
+			})
+		}
 	}
 
 	selfContact := &user_contact.UserContact{}

@@ -6,10 +6,12 @@ package user_contact
 
 import (
 	"context"
+	"time"
 
 	"ad.com/http/internal/svc"
 	"ad.com/http/internal/types"
 	"ad.com/pkg/exception"
+	"ad.com/pkg/util"
 
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
@@ -35,22 +37,27 @@ func (l *UserContactDeleteLogic) UserContactDelete(req *types.PathIdReq) error {
 	if ownerId == req.Id {
 		return &exception.UserContactDeleteFailed
 	}
-	selfContact, err := l.svcCtx.UserContactModel.FindDstContact(l.ctx, ownerId, req.Id)
+	toTarget, err := l.svcCtx.UserContactModel.FindDstContact(l.ctx, ownerId, req.Id)
 	if err != nil {
 		logx.Errorf("find self contact failed, err: %v", err)
 		return &exception.UserContactTargetNotFriend
 	}
-	targetContact, err := l.svcCtx.UserContactModel.FindDstContact(l.ctx, req.Id, ownerId)
+	toSelf, err := l.svcCtx.UserContactModel.FindDstContact(l.ctx, req.Id, ownerId)
 	if err != nil {
 		logx.Errorf("find target contact failed, err: %v", err)
 		return &exception.UserContactNotTargetFriend
 	}
+
+	toTarget.ReApply = 1
+	toTarget.UpdatedAt = util.ConvertTime(time.Now())
+	toSelf.ReApply = 1
+	toSelf.UpdatedAt = util.ConvertTime(time.Now())
 	l.svcCtx.Conn.TransactCtx(l.ctx, func(ctx context.Context, session sqlx.Session) error {
-		if err := l.svcCtx.UserContactModel.Delete(ctx, selfContact.Id); err != nil {
-			return &exception.UserContactDeleteFailed
+		if err := l.svcCtx.UserContactModel.Update(ctx, toTarget); err != nil {
+			return &exception.UserContactUpdateFailed
 		}
-		if err := l.svcCtx.UserContactModel.Delete(ctx, targetContact.Id); err != nil {
-			return &exception.UserContactDeleteFailed
+		if err := l.svcCtx.UserContactModel.Update(ctx, toSelf); err != nil {
+			return &exception.UserContactUpdateFailed
 		}
 
 		return nil

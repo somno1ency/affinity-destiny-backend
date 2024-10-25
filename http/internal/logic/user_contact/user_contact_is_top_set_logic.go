@@ -45,7 +45,7 @@ func (l *UserContactIsTopSetLogic) UserContactIsTopSet(req *types.UserContactIsS
 	if req.Value {
 		isTop = 1
 	}
-	userContact.IsDisturb = isTop
+	userContact.IsTop = isTop
 	userContact.UpdatedAt = util.ConvertTime(time.Now())
 	if err := l.svcCtx.UserContactModel.Update(l.ctx, userContact); err != nil {
 		logx.Errorf("update user contact failed, err: %v", err)

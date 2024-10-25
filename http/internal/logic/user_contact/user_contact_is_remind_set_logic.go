@@ -45,7 +45,7 @@ func (l *UserContactIsRemindSetLogic) UserContactIsRemindSet(req *types.UserCont
 	if req.Value {
 		isRemind = 1
 	}
-	userContact.IsDisturb = isRemind
+	userContact.IsRemind = isRemind
 	userContact.UpdatedAt = util.ConvertTime(time.Now())
 	if err := l.svcCtx.UserContactModel.Update(l.ctx, userContact); err != nil {
 		logx.Errorf("update user contact failed, err: %v", err)

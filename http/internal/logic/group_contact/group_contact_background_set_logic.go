@@ -6,9 +6,12 @@ package group_contact
 
 import (
 	"context"
+	"time"
 
 	"ad.com/http/internal/svc"
 	"ad.com/http/internal/types"
+	"ad.com/pkg/exception"
+	"ad.com/pkg/util"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -28,7 +31,19 @@ func NewGroupContactBackgroundSetLogic(ctx context.Context, svcCtx *svc.ServiceC
 }
 
 func (l *GroupContactBackgroundSetLogic) GroupContactBackgroundSet(req *types.GroupContactStringSetReq) error {
-	// todo: add your logic here and delete this line
+	// TODO: assume operate for user 1
+	var ownerId int64 = 1
+	groupContact, err := l.svcCtx.GroupContactModel.FindByUserId(l.ctx, req.Id, ownerId)
+	if err != nil {
+		logx.Errorf("find group contact failed, err: %v", err)
+		return &exception.GroupContactNotFound
+	}
+	groupContact.Background = req.Value
+	groupContact.UpdatedAt = util.ConvertTime(time.Now())
+	if err := l.svcCtx.GroupContactModel.Update(l.ctx, groupContact); err != nil {
+		logx.Errorf("update user contact failed, err: %v", err)
+		return &exception.GroupContactUpdateFailed
+	}
 
 	return nil
 }

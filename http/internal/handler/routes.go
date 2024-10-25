@@ -132,11 +132,6 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Handler: group_contact.GroupContactLeaveHandler(serverCtx),
 			},
 			{
-				Method:  http.MethodDelete,
-				Path:    "/:id",
-				Handler: group_contact.GroupContactDeleteHandler(serverCtx),
-			},
-			{
 				Method:  http.MethodPost,
 				Path:    "/:id/background",
 				Handler: group_contact.GroupContactBackgroundSetHandler(serverCtx),

@@ -21,6 +21,7 @@ type (
 		withSession(session sqlx.Session) UserModel
 
 		FindOneByCustomId(ctx context.Context, customId string) (*User, error)
+		FindByUserIds(ctx context.Context, userIds []int64) ([]*User, error)
 	}
 
 	customUserModel struct {
@@ -46,6 +47,29 @@ func (m *customUserModel) FindOneByCustomId(ctx context.Context, customId string
 	switch err {
 	case nil:
 		return &resp, nil
+	case sqlx.ErrNotFound:
+		return nil, ErrNotFound
+	default:
+		return nil, err
+	}
+}
+
+func (m *customUserModel) FindByUserIds(ctx context.Context, userIds []int64) ([]*User, error) {
+	sql := "select %s from %s where `Id` in ("
+	placeHolder := ""
+	for i, id := range userIds {
+		if i > 0 && (i != len(userIds)) {
+			placeHolder += ", "
+		}
+		placeHolder += fmt.Sprintf("%d", id)
+	}
+	sql += placeHolder + ")"
+	query := fmt.Sprintf(sql, userRows, m.table)
+	var resp []*User
+	err := m.conn.QueryRowsCtx(ctx, &resp, query)
+	switch err {
+	case nil:
+		return resp, nil
 	case sqlx.ErrNotFound:
 		return nil, ErrNotFound
 	default:
